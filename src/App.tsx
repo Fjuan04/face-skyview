@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 function App() {
 
   return (
-    <div className="">
+    <div className="scroll-smooth">
       <Home/>
     </div>
   )

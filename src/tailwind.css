@@ -4,15 +4,15 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-
-@font-face {
-  font-family: jakarta;
-  src: url('./assets/Playwrite_AT/PlaywriteAT-VariableFont_wght.ttf') format('ttf');
-  font-weight: 400;
-  font-style: normal;
+* {
+  scroll-behavior: smooth !important;
 }
 
+@font-face {
+  font-family: 'jakarta';
+  src: url('./assets/fonts/Plus_Jakarta_Sans/PlusJakartaSans-VariableFont_wght.ttf');
+}
 
 @theme {
-  --font-mi: 'jarkata', 'system-ui';
+  --font-plus : 'jakarta'
 }
