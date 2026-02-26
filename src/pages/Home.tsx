@@ -1,125 +1,186 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useLayoutEffect, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TextType from "@/components/text/TextType";
-import ShinyText from "@/components/text/ShinyText";
 import eye from "@/assets/icons/eye-icon.svg";
-import GooeyNav from "@/components/GooeyNav";
+import Navbar from "@/components/Navbar";
 
-function Home() {
-  const items = [
-    { label: "Home",      href: "#home" },
-    { label: "Acerca De", href: "#acerca-de" },
-    { label: "Ambientes", href: "#ambientes" },
-    { label: "Collab",    href: "#collab" },
-  ];
+gsap.registerPlugin(ScrollTrigger);
 
-  const reference = useRef(null);
-  const { scrollYProgress } = useScroll({ target: reference });
+interface HomeProps {
+  startAnimation: boolean;
+}
 
-  const height = useTransform(
-    scrollYProgress,
-    [0, 0.8, 1],
-    ["100vh", "20vh", "100vh"]
-  );
-  const heightBlur = useTransform(
-    scrollYProgress,
-    [0, 0.8, 0.8],
-    ["100vh", "20vh", "0vh"]
-  );
-  const translateY = useTransform(
-    scrollYProgress,
-    [0, 0.5],
-    ["-100px", "0px"]
-  );
+function Home({ startAnimation }: HomeProps) {
+  /* ─── Refs ─────────────────────────────────────────────────── */
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const whiteRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const buttonsRef = useRef<HTMLDivElement>(null);
+  const btn1Ref = useRef<HTMLAnchorElement>(null);
+  const btn2Ref = useRef<HTMLAnchorElement>(null);
+
+  /* ─── Step 1: Pin initial states before first paint ─────────
+     Runs immediately so elements never flash at visible opacity  */
+  useLayoutEffect(() => {
+    gsap.set(bgRef.current, { opacity: 0, scale: 1.1 });
+    gsap.set("#navbar", { y: -50, opacity: 0 });
+    gsap.set(headingRef.current, { y: 80, opacity: 0 });
+    gsap.set([btn1Ref.current, btn2Ref.current], { y: 20, opacity: 0, scale: 0.9 });
+  }, []);
+
+  /* ─── Step 2: Run animations only when loader finishes ──────── */
+  useEffect(() => {
+    if (!startAnimation) return;
+
+    const ctx = gsap.context(() => {
+
+      /* ── Entry Timeline ──────────────────────────────────────── */
+      // Only transform + opacity — GPU-friendly (no filter:blur, no clipPath)
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      tl
+        // 1. BG: fade in + subtle scale
+        .to(bgRef.current,
+          { opacity: 1, scale: 1, duration: 1.3, ease: "power2.out" }
+        )
+        // 2. Navbar drops from above
+        .to("#navbar",
+          { y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.5)", clearProps: "transform" },
+          "-=0.9"
+        )
+        // 5. Heading rises from below
+        .to(headingRef.current,
+          { y: 0, opacity: 1, duration: 0.9 },
+          "-=0.45"
+        )
+        // 6. CTA buttons staggered
+        .to([btn1Ref.current, btn2Ref.current],
+          { y: 0, opacity: 1, scale: 1, stagger: 0.1, duration: 0.5, ease: "back.out(1.8)" },
+          "-=0.45"
+        );
+
+      /* ── ScrollTrigger: Hero exit (CSS Sticky tracking) ──────── */
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: wrapperRef.current,
+          start: "top top",
+          end: "+=100%", // track the first 100vh of scrolling
+          scrub: 1.8,
+        },
+      })
+        .to(headingRef.current, { y: -160, opacity: 0, ease: "none" }, 0)
+        .to(buttonsRef.current, { y: 60, opacity: 0, ease: "none" }, 0)
+        .to(bgRef.current, { scale: 1.07, ease: "none" }, 0)
+        .to(whiteRef.current, { opacity: 1, ease: "none" }, 0);
+
+    }, wrapperRef);
+
+    return () => ctx.revert();
+  }, [startAnimation]);
+
+  /* ─── Magnetic hover ────────────────────────────────────────── */
+  const onMagneticMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width / 2)) * 0.35;
+    const dy = (e.clientY - (r.top + r.height / 2)) * 0.35;
+    gsap.to(e.currentTarget, { x: dx, y: dy, duration: 0.3, ease: "power2.out", overwrite: true });
+  };
+
+  const onMagneticLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    gsap.to(e.currentTarget, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1, 0.4)", overwrite: true });
+  };
+
 
   return (
+    <div ref={wrapperRef}>
 
-    <div ref={reference} className="bg-red-100 h-[400vh]">
-      <nav className="navbar px-12.5 sticky top-4 z-20 h-15.5 flex justify-between items-center overflow-visible">
-          <ShinyText
-            text="face"
-            className="font-plus text-[48px] font-light cursor-pointer"
-          />
+      <Navbar />
 
-          <motion.div
-            initial={{ translateY: "-100px" }}
-            style={{ translateY }}
-            className="font-plus"
-          >
-            <GooeyNav
-              items={items}
-              particleCount={5}
-              particleDistances={[90, 10]}
-              particleR={500}
-              initialActiveIndex={0}
-              animationTime={600}
-              timeVariance={400}
-              colors={[1, 2, 3, 1, 2, 3, 1, 4]}
-            />
-          </motion.div>
-
-          <a href="#" className="logo h-15 bg-white rounded-full w-15 cursor-pointer">
-            <img className="object-cover -translate-x-0.5" src="/logo-sena.png" alt="" />
-          </a>
-        </nav>
-      {/*  SECCIÓN HOME */}
+      {/* ━━ Hero Section ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section
         id="home"
-        className=" top-0 px-12.5 bg-white bg-cover h-screen z-20 bg-center flex flex-col justify-between"
+        className="sticky top-0 z-0 h-screen overflow-hidden"
       >
-        <motion.div
-          className="bg-[url('/sena-dia.png')] h-full w-full z-0 bg-cover bg-center absolute top-[50%] -translate-y-[50%] left-0"
-          initial={{ height: "100vh" }}
-          style={{ height }}
-        >
-          <motion.div
-            initial={{ height: "100vh" }}
-            style={{ height: heightBlur }}
-            className="backdrop-blur-xs h-full pointer-events-none"
-          />
-        </motion.div>
-        
-
-        {/* TEXT TYPING */}
-        <TextType
-          className="font-plus text-white relative z-20 text-[115px]/[120px] font-bold"
-          loop={false}
-          text={[
-            "Bienvenido a face Skyview.",
-            "Auditoría y monitoreo en tiempo real de ambientes del SENA.",
-            "Visualiza la ocupación desde una perspectiva aérea e inteligente.",
-          ]}
+        {/* BG image based on theme */}
+        <div
+          ref={bgRef}
+          className="absolute inset-0 bg-cover bg-center z-0 transition-[background-image] duration-700 ease-in-out dark:bg-[url('/sena-noche.png')] bg-[url('/sena-dia.png')]"
+          style={{ willChange: "transform, opacity" }}
         />
 
-        <div className="buttons flex gap-4">
-          <a
-            href=""
-            className="backdrop-blur-xs border-[0.01px] rounded-[3px] border-white h-17.5 w-17.5 flex items-center justify-center"
-          >
-            <img className="w-[50%]" src={eye} alt="" />
-          </a>
-          <a
-            href=""
-            className="backdrop-blur-xs border-[0.01px] rounded-[3px] border-white h-17.5 px-7.5 flex items-center justify-center text-white text-[24px]"
-          >
-            Ver Ambientes
-          </a>
+        {/* Bottom gradient */}
+        <div className="hero-gradient absolute inset-0 z-[1] pointer-events-none" />
+
+        {/* Exit overlay (white in light mode, darkslate in dark mode) */}
+        <div
+          ref={whiteRef}
+          className="absolute inset-0 z-[2] opacity-0 pointer-events-none dark:bg-[#0F172A] bg-white"
+        />
+
+        {/* Grain */}
+        <div className="grain-overlay absolute inset-0 z-[3] pointer-events-none" />
+
+        {/* Content */}
+        <div className="relative z-10 h-full flex flex-col justify-end px-12 pb-14">
+
+          <div ref={headingRef} className="max-w-[95%] md:max-w-[85%] lg:max-w-[75%] xl:max-w-[70%]">
+            <TextType
+              className="font-plus text-white font-bold"
+              style={{ fontSize: "clamp(42px, 7.5vw, 110px)", lineHeight: 1.04 }}
+              loop={false}
+              showCursor={true}
+              cursorCharacter="|"
+              initialDelay={2000}
+              text={[
+                "Bienvenido a face Skyview.",
+                "Auditoría y monitoreo en tiempo real de ambientes del SENA.",
+                "Visualiza la ocupación desde una perspectiva aérea e inteligente.",
+              ]}
+            />
+          </div>
+
+          <div ref={buttonsRef} className="flex gap-4 pt-12 lg:pt-20">
+            <a
+              ref={btn1Ref}
+              href="#ambientes"
+              className="backdrop-blur-sm border border-white/50 rounded-[3px]
+                         h-[70px] w-[70px] flex items-center justify-center
+                         hover:bg-white/15 transition-colors"
+              onMouseMove={onMagneticMove}
+              onMouseLeave={onMagneticLeave}
+            >
+              <img className="w-[46%]" src={eye} alt="Ver ambientes" />
+            </a>
+
+            <a
+              ref={btn2Ref}
+              href="#ambientes"
+              className="backdrop-blur-sm border border-white/50 rounded-[3px]
+                         h-[70px] px-8 flex items-center justify-center
+                         text-white text-2xl font-plus
+                         hover:bg-white/15 transition-colors"
+              onMouseMove={onMagneticMove}
+              onMouseLeave={onMagneticLeave}
+            >
+              Ver Ambientes
+            </a>
+          </div>
         </div>
       </section>
 
-      {/*  SECCIÓN ACERCA DE */}
-      <section id="acerca-de" className="h-screen bg-red-500 flex items-center justify-center">
-        <h2 className="text-white text-4xl font-bold">Acerca De</h2>
+      {/* ━━ Placeholder sections ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <section id="acerca-de" className="relative z-10 h-screen bg-background flex items-center justify-center shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+        <h2 className="text-foreground text-4xl font-bold font-plus">Acerca De</h2>
       </section>
 
-      {/*  SECCIÓN AMBIENTES */}
-      <section id="ambientes" className="h-screen bg-red-600 flex items-center justify-center">
-        <h2 className="text-white text-4xl font-bold">Ambientes</h2>
+      <section id="ambientes" className="relative z-10 h-screen bg-muted flex items-center justify-center">
+        <h2 className="text-foreground text-4xl font-bold font-plus">Ambientes</h2>
       </section>
 
-      {/*  SECCIÓN COLLAB */}
-      <section id="collab" className="h-screen bg-red-700 flex items-center justify-center">
-        <h2 className="text-white text-4xl font-bold">Collab</h2>
+      <section id="collab" className="relative z-10 h-screen bg-background flex items-center justify-center">
+        <h2 className="text-foreground text-4xl font-bold font-plus">Collab</h2>
       </section>
 
     </div>
