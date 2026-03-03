@@ -6,7 +6,7 @@ import eye from "@/assets/icons/eye-icon.svg";
 import Navbar from "@/components/Navbar";
 import ScrollFloat from "@/components/text/ScrollFloat";
 import ScrollReveal from "@/components/text/ScrollReveal";
-
+import { motion, useScroll } from 'framer-motion';
 gsap.registerPlugin(ScrollTrigger);
 
 interface HomeProps {
@@ -95,6 +95,8 @@ function Home({ startAnimation }: HomeProps) {
   };
 
 
+  const aboutRef = useRef(null);
+  const {scrollY} = useScroll();
   return (
     <div ref={wrapperRef}>
 
@@ -103,7 +105,7 @@ function Home({ startAnimation }: HomeProps) {
       {/* ━━ Hero Section ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section
         id="home"
-        className="sticky top-0 z-0 h-screen overflow-hidden"
+        className="sticky top-0 z-0 h-dvh overflow-hidden "
       >
         {/* BG image based on theme */}
         <div
@@ -143,7 +145,7 @@ function Home({ startAnimation }: HomeProps) {
             />
           </div>
 
-          <div ref={buttonsRef} className="flex gap-4 pt-12 lg:pt-20">
+          <div ref={buttonsRef} className="flex gap-4 pt-12 2xl:pt-16">
             <a
               ref={btn1Ref}
               href="#ambientes"
@@ -173,20 +175,21 @@ function Home({ startAnimation }: HomeProps) {
       </section>
 
       {/* ━━ Placeholder sections ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section id="acerca-de" className="relative z-10 min-h-screen bg-background flex flex-col items-center justify-center shadow-[0_-10px_30px_rgba(0,0,0,0.1)] py-24 px-8 md:px-24">
+      <section id="acerca-de" className="relative z-10 min-h-screen bg-white dark:bg-[#0F172A] flex flex-col items-center justify-center shadow-[0_-10px_30px_rgba(0,0,0,0.1)] py-24 px-8 md:px-24">
 
-        <div className="flex flex-col items-center justify-center">
+        <motion.div className="flex flex-col items-center justify-center">
+          
           <ScrollFloat
             animationDuration={2}
             ease="back.inOut(2)"
             scrollStart="center bottom+=5%"
             scrollEnd="bottom bottom-=50%"
             stagger={0.05}
-            textClassName="text-red-500 font-bold mb-16"
+            textClassName="dark: font-bold mb-16"
           >
-            Acerca De
+            Acerca de
           </ScrollFloat>
-        </div>
+        </motion.div>
 
 
         <div className="text-foreground/80 text-xl md:text-4xl text-center max-w-5xl leading-relaxed">
@@ -195,7 +198,7 @@ function Home({ startAnimation }: HomeProps) {
             enableBlur={true}
             baseRotation={3}
             blurStrength={4}
-            textClassName="text font-bold mb-16"
+            textClassName=" font-bold mb-16"
           >
             When does a man die? When he is hit by a bullet? No! When he suffers a disease? No! When he ate a soup made out of a poisonous mushroom? No! A man dies when he is forgotten!
           </ScrollReveal>

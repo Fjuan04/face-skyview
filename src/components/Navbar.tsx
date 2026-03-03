@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import ShinyText from './text/ShinyText';
 import { useTheme } from './ThemeProvider';
 import { FiSun, FiMoon } from 'react-icons/fi';
+import { User } from 'lucide-react';
+
 
 const NAV_ITEMS = [
     { label: 'Home', href: '#home' },
-    { label: 'Acerca De', href: '#acerca-de' },
+    { label: 'Acerca de', href: '#acerca-de' },
     { label: 'Ambientes', href: '#ambientes' },
     { label: 'Collab', href: '#collab' },
 ];
@@ -78,7 +80,16 @@ export default function Navbar() {
                     {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
                 </button>
 
+                <button
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
+                    aria-label="Profile"
+                    title="Iniciar Sesión"
+                >
+                    <User size={18} />
+                </button>
+
                 <a href="#" className="h-10 w-10 md:h-12 md:w-12 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
+
                     <img className="object-cover w-full h-full scale-[1] -translate-x-[1px]" src="/logo-sena.png" alt="Logo SENA" />
                 </a>
             </div>
