@@ -1,16 +1,14 @@
-import { useState } from 'react';
 import "./tailwind.css";
-import Home from "./pages/Home";
-import Loader from "./components/Loader";
 import { ThemeProvider } from "./components/ThemeProvider";
-
+import Router from './Router';
+import { BrowserRouter } from "react-router-dom";
 function App() {
-  const [ready, setReady] = useState(false);
 
   return (
     <ThemeProvider defaultTheme="light" storageKey="sena-theme">
-      <Loader onComplete={() => setReady(true)} />
-      <Home startAnimation={ready} />
+        <BrowserRouter>
+          <Router/>
+        </BrowserRouter>
     </ThemeProvider>
   );
 }

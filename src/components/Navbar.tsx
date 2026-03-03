@@ -3,6 +3,7 @@ import ShinyText from './text/ShinyText';
 import { useTheme } from './ThemeProvider';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 
 const NAV_ITEMS = [
@@ -80,13 +81,14 @@ export default function Navbar() {
                     {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
                 </button>
 
-                <button
+                <Link
+                    to={'/login'}
                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
                     aria-label="Profile"
                     title="Iniciar Sesión"
                 >
                     <User size={18} />
-                </button>
+                </Link>
 
                 <a href="#" className="h-10 w-10 md:h-12 md:w-12 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
 

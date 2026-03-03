@@ -16,7 +16,7 @@ export default function Loader({ onComplete }: LoaderProps) {
         const start = Date.now();
 
         /* ── Entrance animations ── */
-        // Solo anima la línea; el texto aparece plano de inmediato
+        
         gsap.fromTo(lineRef.current,
             { opacity: 0 },
             { opacity: 1, duration: 0.4, ease: 'power2.out' }
