@@ -12,7 +12,13 @@ interface FloatingInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function FloatingInput({ id, label, type = "text", value, onChange }: FloatingInputProps) {
+function FloatingInput({
+  id,
+  label,
+  type = "text",
+  value,
+  onChange,
+}: FloatingInputProps) {
   const [focused, setFocused] = useState(false);
   const isFloating = focused || value.length > 0;
 
@@ -45,9 +51,10 @@ function FloatingInput({ id, label, type = "text", value, onChange }: FloatingIn
         className={`
           absolute left-4 font-plus text-white/60 pointer-events-none
           transition-all duration-200 ease-out
-          ${isFloating
-            ? "top-1.5 text-[11px] text-white/80 tracking-wide"
-            : "top-1/2 -translate-y-1/2 text-base"
+          ${
+            isFloating
+              ? "top-1.5 text-[11px] text-white/80 tracking-wide"
+              : "top-1/2 -translate-y-1/2 text-base"
           }
         `}
       >
@@ -73,7 +80,7 @@ function Login() {
   const { login, loading, error } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
@@ -87,7 +94,6 @@ function Login() {
 
   return (
     <div className="relative h-dvh w-full overflow-hidden flex items-center justify-center">
-
       {/* ── Video Background ──────────────────────────────────── */}
       <video
         ref={videoRef}
@@ -103,7 +109,10 @@ function Login() {
       <div className="absolute inset-0 z-[1] bg-black/50" />
       <div
         className="absolute inset-0 z-[2] pointer-events-none"
-        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)" }}
+        style={{
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)",
+        }}
       />
       <div className="grain-overlay absolute inset-0 z-[3] pointer-events-none" />
 
@@ -138,7 +147,11 @@ function Login() {
         </motion.div>
 
         {/* Form */}
-        <motion.div
+        <motion.form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
@@ -168,15 +181,17 @@ function Login() {
 
           {/* Forgot password */}
           <div className="flex justify-end -mt-2">
-            <a href="#" className="font-plus text-white/50 text-sm hover:text-white/80 transition-colors">
+            <a
+              href="#"
+              className="font-plus text-white/50 text-sm hover:text-white/80 transition-colors"
+            >
               ¿Olvidaste tu contraseña?
             </a>
           </div>
 
           {/* Submit */}
           <button
-            type="button"
-            onClick={handleLogin}
+            type="submit"
             disabled={loading}
             className="
               relative mt-2 w-full h-14
@@ -192,11 +207,9 @@ function Login() {
               disabled:opacity-50 disabled:cursor-not-allowed
             "
           >
-            <span className="relative z-10">
-              {loading ? "Ingresando..." : "Ingresar"}
-            </span>
+            {loading ? "Ingresando..." : "Ingresar"}
           </button>
-        </motion.div>
+        </motion.form>
 
         {/* Footer */}
         <motion.p
@@ -206,7 +219,10 @@ function Login() {
           className="mt-8 text-center font-plus text-white/40 text-sm"
         >
           ¿No tienes cuenta?{" "}
-          <a href="#" className="text-white/70 hover:text-white transition-colors">
+          <a
+            href="#"
+            className="text-white/70 hover:text-white transition-colors"
+          >
             Solicitar acceso
           </a>
         </motion.p>

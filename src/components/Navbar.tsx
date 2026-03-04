@@ -4,7 +4,7 @@ import { useTheme } from './ThemeProvider';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { useAuth } from '@/hooks/useAuth';
 
 const NAV_ITEMS = [
     { label: 'Home', href: '#home' },
@@ -17,7 +17,7 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const { theme, setTheme } = useTheme();
     const isDark = theme === "dark";
-
+    const {user, logout} = useAuth();
     useEffect(() => {
         const handleScroll = () => {
             // Cambia el background del nav cuando el scroll pasa gran parte del hero
@@ -80,7 +80,7 @@ export default function Navbar() {
                 >
                     {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
                 </button>
-
+                {!user && 
                 <Link
                     to={'/login'}
                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
@@ -89,7 +89,7 @@ export default function Navbar() {
                 >
                     <User size={18} />
                 </Link>
-
+                }
                 <a href="#" className="h-10 w-10 md:h-12 md:w-12 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
 
                     <img className="object-cover w-full h-full scale-[1] -translate-x-[1px]" src="/logo-sena.png" alt="Logo SENA" />
