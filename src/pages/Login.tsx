@@ -1,16 +1,19 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 /* ─── Floating Label Input ──────────────────────────────────────── */
 interface FloatingInputProps {
   id: string;
   label: string;
   type?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function FloatingInput({ id, label, type = "text" }: FloatingInputProps) {
+function FloatingInput({ id, label, type = "text", value, onChange }: FloatingInputProps) {
   const [focused, setFocused] = useState(false);
-  const [value, setValue] = useState("");
   const isFloating = focused || value.length > 0;
 
   return (
@@ -21,7 +24,7 @@ function FloatingInput({ id, label, type = "text" }: FloatingInputProps) {
         value={value}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={onChange}
         className="
           peer w-full h-14 px-4 pt-4 pb-1
           bg-white/10 backdrop-blur-md
@@ -33,7 +36,6 @@ function FloatingInput({ id, label, type = "text" }: FloatingInputProps) {
           focus:border-white/70 focus:bg-white/15
           placeholder-transparent
         "
-        // placeholder={label}
         style={{ WebkitTextFillColor: "white" }}
       />
 
@@ -65,9 +67,23 @@ function FloatingInput({ id, label, type = "text" }: FloatingInputProps) {
   );
 }
 
-/* ─── Login Page ────────────────────────────────────────────────── */
+/* Login Page  */
 function Login() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { login, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleLogin() {
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch {
+      // El error ya lo maneja el AuthProvider en `error`
+    }
+  }
 
   return (
     <div className="relative h-dvh w-full overflow-hidden flex items-center justify-center">
@@ -101,12 +117,11 @@ function Login() {
           w-full max-w-md mx-4
           bg-white/10 backdrop-blur-md
           border border-white/20
-          rounded-lg     
+          rounded-lg
           px-10 py-12
           shadow-[0_8px_32px_rgba(0,0,0,0.4)]
         "
       >
-        
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -129,8 +144,27 @@ function Login() {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="flex flex-col gap-5"
         >
-          <FloatingInput id="email" label="Correo electrónico" type="email" />
-          <FloatingInput id="password" label="Contraseña" type="password" />
+          <FloatingInput
+            id="email"
+            label="Correo electrónico"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <FloatingInput
+            id="password"
+            label="Contraseña"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {/* Error message */}
+          {error && (
+            <p className="font-plus text-red-400 text-sm text-center -mt-1">
+              {error}
+            </p>
+          )}
 
           {/* Forgot password */}
           <div className="flex justify-end -mt-2">
@@ -142,18 +176,25 @@ function Login() {
           {/* Submit */}
           <button
             type="button"
+            onClick={handleLogin}
+            disabled={loading}
             className="
               relative mt-2 w-full h-14
               backdrop-blur-sm border border-white/50
               rounded-[3px]
+              bg-[#02AF00]
+              cursor-pointer
               text-white font-plus text-base tracking-wide
               overflow-hidden group
               transition-all duration-300
               hover:border-white/80
+              hover:opacity-80
+              disabled:opacity-50 disabled:cursor-not-allowed
             "
           >
-            <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-            <span className="relative z-10">Ingresar</span>
+            <span className="relative z-10">
+              {loading ? "Ingresando..." : "Ingresar"}
+            </span>
           </button>
         </motion.div>
 
