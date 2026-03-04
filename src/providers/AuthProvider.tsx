@@ -4,8 +4,9 @@ import { api } from "@/lib/api";
 /* Types  */
 interface User {
   id: number;
-  name: string;
+  username: string;
   email: string;
+  role_id: number;
 }
 
 export interface AuthContextType {
@@ -41,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const res = await fetch(BASE_URL + 'user', {
+        const res = await fetch(BASE_URL + '/user', {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: 'application/json'
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.post("login", { email, password });
+      const data = await api.post("/login", { email, password });
       localStorage.setItem("token", data.token);
       setToken(data.token);
       setUser(data.user);

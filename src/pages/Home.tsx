@@ -95,10 +95,9 @@ function Home({ startAnimation }: HomeProps) {
   };
 
 
-  const aboutRef = useRef(null);
-  const {scrollY} = useScroll();
+  
   return (
-    <div ref={wrapperRef}>
+    <div ref={wrapperRef} className="overflow-hidden">
 
       <Navbar />
 
@@ -209,9 +208,7 @@ function Home({ startAnimation }: HomeProps) {
         <h2 className="text-foreground text-4xl font-bold font-plus">Ambientes</h2>
       </section>
 
-      <section id="collab" className="relative z-10 h-screen bg-background flex items-center justify-center">
-        <h2 className="text-foreground text-4xl font-bold font-plus">Collab</h2>
-      </section>
+      
 
     </div>
   );

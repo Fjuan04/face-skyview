@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link} from "react-router-dom";
 
 /* ─── Floating Label Input ──────────────────────────────────────── */
 interface FloatingInputProps {
@@ -210,22 +210,6 @@ function Login() {
             {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </motion.form>
-
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-8 text-center font-plus text-white/40 text-sm"
-        >
-          ¿No tienes cuenta?{" "}
-          <a
-            href="#"
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            Solicitar acceso
-          </a>
-        </motion.p>
       </motion.div>
     </div>
   );
