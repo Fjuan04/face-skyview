@@ -79,10 +79,11 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.post("/test/doc", { document: documento }) as DocenteInfo;
+
+      const data = await api.post("/search/docent", { document: documento }) as DocenteInfo;
       onNext(data);
-    } catch {
-      setError("No se encontró ningún docente con ese documento.");
+    } catch (err: any){
+      setError(err.message);
     } finally {
       setLoading(false);
     }

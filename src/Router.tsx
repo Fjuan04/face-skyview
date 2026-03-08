@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Administracion from './pages/Administracion';
 import { useState } from 'react';
 import Loader from "./components/Loader";
+import ProtectedRoute from './components/ProtectedRoute';
 
 function Router(){
     const [ready, setReady] = useState(false);
@@ -16,7 +17,11 @@ function Router(){
         <Routes>
             <Route path="/" element={<Home startAnimation={ready}/>} />
             <Route path="/login" element={<Login />} />
-            <Route path='/administracion' element={<Administracion/>}/>
+            <Route path='/administracion' element={
+                <ProtectedRoute>
+                    <Administracion/>
+                </ProtectedRoute>
+            }/>
         </Routes>
     );
 }
