@@ -1,17 +1,18 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Camera, Check, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 
 /*  Types  */
 interface DocenteInfo {
-    id: number,
-    username: string,
-    institutional_email: string,
-    personal_email: string,
-    document: string,
-    birthdate: Date,
-    phone: string,
-    gender: string,
+  id: number,
+  username: string,
+  institutional_email: string,
+  personal_email: string,
+  document: string,
+  birthdate: Date,
+  phone: string,
+  gender: string,
 }
 
 /* Step indicator  */
@@ -70,8 +71,8 @@ function StepIndicator({ current }: { current: number }) {
 /* Step 1: Documento  */
 function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
   const [documento, setDocumento] = useState("");
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +80,9 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
     setLoading(true);
     setError(null);
     try {
-
       const data = await api.post("/search/docent", { document: documento }) as DocenteInfo;
       onNext(data);
-    } catch (err: any){
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -92,19 +92,19 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/40 mb-2">Paso 1</p>
-        <h2 className="font-plus text-white font-bold" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
+        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/50 mb-2">Paso 1</p>
+        <h2 className="font-plus text-white font-bold tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
           Ingresa el documento
         </h2>
-        <p className="text-white/40 text-sm font-plus mt-2">
+        <p className="text-white/60 text-sm font-plus mt-2">
           Consultaremos los datos del docente automáticamente.
         </p>
-        <div className="mt-4 h-px bg-white/10" />
+        <div className="mt-5 h-px bg-gradient-to-r from-white/20 to-transparent" />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-mono uppercase tracking-widest text-white/50">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-2">
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-mono uppercase tracking-widest text-white/70 ml-1">
             N° de documento
           </label>
           <input
@@ -115,11 +115,11 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
             autoFocus
             required
             className="
-              bg-white/5 border border-white/10 rounded-[3px]
-              px-4 py-3 text-white text-sm font-plus
-              placeholder:text-white/20
-              focus:outline-none focus:border-white/40
-              transition-all duration-200
+              bg-black/40 border border-white/20 rounded-[6px]
+              px-5 py-4 text-white text-[15px] font-plus tracking-wide
+              placeholder:text-white/20 shadow-inner
+              focus:outline-none focus:border-white/60 focus:bg-black/60 focus:ring-4 focus:ring-white/5
+              transition-all duration-300
             "
           />
         </div>
@@ -128,7 +128,7 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
           {error && (
             <motion.p
               initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="text-red-400 text-sm font-plus border border-red-400/20 bg-red-400/5 rounded-[3px] px-4 py-2"
+              className="text-red-300 text-sm font-plus border border-red-500/30 bg-red-500/10 rounded-[6px] px-4 py-3 shadow-sm"
             >
               {error}
             </motion.p>
@@ -138,17 +138,17 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
         <motion.button
           type="submit"
           disabled={loading || !documento.trim()}
-          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
           className="
-            mt-2 h-[54px] w-full backdrop-blur-sm border border-white/50 rounded-[3px]
-            text-white text-sm font-plus tracking-widest uppercase
-            hover:bg-white/10 transition-colors
-            disabled:opacity-40 disabled:cursor-not-allowed
+            mt-2 h-[56px] w-full bg-white text-black rounded-[6px]
+            text-[14px] font-plus font-bold tracking-[0.15em] uppercase
+            hover:bg-gray-200 transition-colors shadow-lg shadow-white/10
+            disabled:opacity-50 disabled:cursor-not-allowed
             flex items-center justify-center gap-2
           "
         >
           {loading ? (
-            <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Consultando...</>
+            <><span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> Consultando...</>
           ) : "Consultar docente →"}
         </motion.button>
       </form>
@@ -159,63 +159,63 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
 /* Step 2: Verificar datos */
 function StepVerificar({ info, onNext, onBack }: { info: DocenteInfo; onNext: () => void; onBack: () => void }) {
   const fields: { label: string; value: string | undefined }[] = [
-    { label: "Nombre completo", value: `${info.username}`},
-    { label: "Documento",       value: info.document },
-    { label: "Correo",          value: info.institutional_email },
-    { label: "Teléfono",        value: info.phone },
-    { label: "Genero",        value: info.gender },
+    { label: "Nombre completo", value: `${info.username}` },
+    { label: "Documento", value: info.document },
+    { label: "Correo", value: info.institutional_email },
+    { label: "Teléfono", value: info.phone },
+    { label: "Genero", value: info.gender },
   ].filter(f => f.value);
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/40 mb-2">Paso 2</p>
-        <h2 className="font-plus text-white font-bold" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
+        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/50 mb-2">Paso 2</p>
+        <h2 className="font-plus text-white font-bold tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
           Verifica los datos
         </h2>
-        <p className="text-white/40 text-sm font-plus mt-2">
+        <p className="text-white/60 text-sm font-plus mt-2">
           Confirma que la información es correcta antes de continuar.
         </p>
-        <div className="mt-4 h-px bg-white/10" />
+        <div className="mt-5 h-px bg-gradient-to-r from-white/20 to-transparent" />
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 mt-2">
         {fields.map((field, i) => (
           <motion.div
             key={field.label}
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.05 * i }}
-            className="flex flex-col gap-1 bg-white/5 border border-white/10 rounded-[3px] px-4 py-3"
+            className="flex flex-col gap-1 bg-black/40 border border-white/10 rounded-[6px] px-5 py-3.5 shadow-inner"
           >
-            <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-white/50">
               {field.label}
             </span>
-            <span className="text-white font-plus text-sm">
+            <span className="text-white font-plus text-[15px] tracking-wide">
               {field.value}
             </span>
           </motion.div>
         ))}
       </div>
 
-      <div className="flex gap-3 mt-2">
+      <div className="flex gap-4 mt-4">
         <button
           onClick={onBack}
           className="
-            h-[54px] flex-1 border border-white/20 rounded-[3px]
-            text-white/50 text-sm font-plus tracking-widest uppercase
-            hover:bg-white/5 hover:text-white transition-colors
+            h-[56px] flex-1 border border-white/20 rounded-[6px] bg-black/20
+            text-white/70 text-sm font-plus font-bold tracking-[0.15em] uppercase
+            hover:bg-white/10 hover:text-white transition-colors
           "
         >
           ← Volver
         </button>
         <motion.button
           onClick={onNext}
-          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
           className="
-            h-[54px] flex-[2] backdrop-blur-sm border border-white/50 rounded-[3px]
-            text-white text-sm font-plus tracking-widest uppercase
-            hover:bg-white/10 transition-colors
+            h-[56px] flex-[2] bg-white text-black rounded-[6px] shadow-lg shadow-white/10
+            text-[14px] font-plus font-bold tracking-[0.15em] uppercase
+            hover:bg-gray-200 transition-colors
           "
         >
           Confirmar →
@@ -227,29 +227,110 @@ function StepVerificar({ info, onNext, onBack }: { info: DocenteInfo; onNext: ()
 
 /* ─── Step 3: Foto y guardar ─────────────────────────────────── */
 function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => void; onDone: () => void }) {
-  const inputRef               = useRef<HTMLInputElement>(null);
-  const [preview, setPreview]  = useState<string | null>(null);
-  const [loading, setLoading]  = useState(false);
-  const [error, setError]      = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Store stream in a ref so changing it doesn't trigger re-renders
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
+  // 'idle' | 'live' | 'frozen' | 'file'
+  const [mode, setMode] = useState<"idle" | "live" | "frozen" | "file">("idle");
+
+  const stopStream = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  };
+
+  const startCamera = async () => {
+    setError(null);
+    // First, set mode to 'live' so <video> becomes visible (it's always in DOM)
+    setMode("live");
+    // Then wait for the next animation frame so the video element is definitely
+    // painted and its ref is accessible before we set srcObject
+    requestAnimationFrame(async () => {
+      try {
+        const ms = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        streamRef.current = ms;
+        const v = videoRef.current;
+        if (!v) return;
+        v.srcObject = ms;
+        // play() returns a promise; handle the rejection so it doesn't throw
+        v.play().catch((e) => console.warn("video.play():", e));
+      } catch (err: any) {
+        setError("No se pudo acceder a la cámara. Verifica los permisos del navegador.");
+        setMode("idle");
+      }
+    });
+  };
+
+  const capturePhoto = () => {
+    const v = videoRef.current;
+    const c = canvasRef.current;
+    if (!v || !c) return;
+
+    c.width = v.videoWidth || 640;
+    c.height = v.videoHeight || 480;
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+
+    // Mirror horizontally so the snapshot matches the mirrored viewfinder
+    ctx.save();
+    ctx.translate(c.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(v, 0, 0, c.width, c.height);
+    ctx.restore();
+
+    stopStream();
+    setMode("frozen");
+    c.toBlob((blob) => { if (blob) setPhotoBlob(blob); }, "image/jpeg", 0.9);
+  };
+
+  const retake = () => {
+    setPhotoBlob(null);
+    setMode("idle");
+  };
+
+  const cancelCamera = () => {
+    stopStream();
+    setMode("idle");
+  };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setPhotoBlob(file);
+    setMode("file");
     const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
+    reader.onload = () => {
+      const c = canvasRef.current;
+      if (!c) return;
+      const img = new Image();
+      img.onload = () => {
+        c.width = img.width;
+        c.height = img.height;
+        c.getContext("2d")?.drawImage(img, 0, 0);
+      };
+      img.src = reader.result as string;
+    };
     reader.readAsDataURL(file);
   };
+
+  // Cleanup on unmount
+  useEffect(() => () => stopStream(), []); // eslint-disable-line
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     try {
-      const formData = new FormData();
-      Object.entries(info).forEach(([k, v]) => v && formData.append(k, v));
-      if (inputRef.current?.files?.[0]) {
-        formData.append("foto", inputRef.current.files[0]);
-      }
-      await api.post("/admin/docentes", formData as unknown as Record<string, unknown>);
+      const fd = new FormData();
+      Object.entries(info).forEach(([k, v]) => v && fd.append(k, String(v)));
+      if (photoBlob) fd.append("foto", photoBlob, "docente-foto.jpg");
+      await api.post("/admin/docentes", fd as unknown as Record<string, unknown>);
       onDone();
     } catch {
       setError("Error al guardar el docente. Intenta de nuevo.");
@@ -260,87 +341,150 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Header */}
       <div>
-        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/40 mb-2">Paso 3</p>
-        <h2 className="font-plus text-white font-bold" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
+        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/50 mb-2">Paso 3</p>
+        <h2 className="font-plus text-white font-bold tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
           Foto del docente
         </h2>
-        <p className="text-white/40 text-sm font-plus mt-2">
-          Opcional — sube una foto de perfil para el docente.
+        <p className="text-white/60 text-sm font-plus mt-2">
+          Opcional — sube o toma una foto de perfil.
         </p>
-        <div className="mt-4 h-px bg-white/10" />
+        <div className="mt-5 h-px bg-gradient-to-r from-white/20 to-transparent" />
       </div>
 
-      {/* Photo upload */}
-      <div
-        onClick={() => inputRef.current?.click()}
-        className="
-          group relative cursor-pointer
-          border border-dashed border-white/20 rounded-[3px]
-          hover:border-white/40 transition-colors
-          h-44 flex flex-col items-center justify-center gap-3
-          overflow-hidden
-        "
+      {/* ─── Single viewfinder container, always in DOM ─── */}
+      <motion.div
+        initial={false}
+        animate={{ height: mode === "idle" ? 0 : "auto", opacity: mode === "idle" ? 0 : 1 }}
+        style={{ overflow: "hidden" }}
+        className="flex flex-col gap-4"
       >
-        {preview ? (
-          <img src={preview} alt="preview" className="absolute inset-0 w-full h-full object-cover opacity-60" />
-        ) : (
-          <>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-white/30 group-hover:text-white/50 transition-colors">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-white/30 text-xs font-mono uppercase tracking-widest group-hover:text-white/50 transition-colors">
-              Haz clic para subir
-            </span>
-          </>
-        )}
-        {preview && (
-          <div className="relative z-10 bg-black/50 rounded px-3 py-1">
-            <span className="text-white text-xs font-mono">Cambiar foto</span>
+        {/* Viewfinder Frame */}
+        <div className="relative rounded-[12px] overflow-hidden border border-white/15 bg-black w-full aspect-video shadow-2xl">
+          {/* Live video stream (mirrored) */}
+          <video
+            ref={videoRef}
+            autoPlay playsInline muted
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ transform: "scaleX(-1)", display: mode === "live" ? "block" : "none" }}
+          />
+          {/* Canvas: frozen camera shot OR uploaded file preview */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+            style={{
+              objectFit: "cover",
+              display: mode === "frozen" || mode === "file" ? "block" : "none",
+              transform: mode === "frozen" ? "scaleX(-1)" : "none",
+            }}
+          />
+
+          {/* Live scanning indicator effect */}
+          {mode === "live" && (
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] border border-white/20 rounded-[24px]" />
+              <div className="absolute top-4 right-4 flex items-center gap-2 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/5">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-[10px] font-mono text-white/70 uppercase pt-px">Live</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Controls placed BELOW the viewfinder */}
+        <div className="flex justify-center gap-3">
+          {mode === "live" && (
+            <AnimatePresence mode="popLayout">
+              <motion.button
+                key="cancel"
+                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                onClick={cancelCamera}
+                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white border border-white/10 text-sm font-plus transition-colors"
+              >
+                Cancelar
+              </motion.button>
+              <motion.button
+                key="capture"
+                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={capturePhoto}
+                className="px-8 py-2.5 bg-white text-black font-bold rounded-full text-sm hover:bg-gray-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all"
+              >
+                <Camera size={18} /> Capturar foto
+              </motion.button>
+            </AnimatePresence>
+          )}
+
+          {(mode === "frozen" || mode === "file") && (
+            <AnimatePresence mode="popLayout">
+              <motion.button
+                key="retake"
+                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                onClick={retake}
+                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white border border-white/10 text-sm font-plus transition-colors"
+              >
+                {mode === "frozen" ? "Repetir foto" : "Eliminar archivo"}
+              </motion.button>
+              <motion.div
+                key="status"
+                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                className="px-6 py-2.5 bg-emerald-500/10 border border-emerald-400/20 text-emerald-400 rounded-full text-sm font-plus flex items-center gap-2"
+              >
+                <Check size={16} /> {mode === "frozen" ? "Foto capturada" : "Archivo seleccionado"}
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Idle chooser */}
+      {mode === "idle" && (
+        <div className="grid grid-cols-2 gap-4">
+          <button onClick={startCamera}
+            className="group border border-white/10 bg-black/40 rounded-[6px] hover:border-white/30 hover:bg-black/60 transition-all h-36 flex flex-col items-center justify-center gap-3"
+          >
+            <Camera size={30} className="text-white/50 group-hover:text-white transition-colors" strokeWidth={1.5} />
+            <span className="text-white/50 text-[11px] font-mono uppercase tracking-widest group-hover:text-white transition-colors">Usar cámara</span>
+          </button>
+          <div onClick={() => inputRef.current?.click()}
+            className="group cursor-pointer border border-white/10 bg-black/40 rounded-[6px] hover:border-white/30 hover:bg-black/60 transition-all h-36 flex flex-col items-center justify-center gap-3"
+          >
+            <Upload size={30} className="text-white/50 group-hover:text-white transition-colors" strokeWidth={1.5} />
+            <span className="text-white/50 text-[11px] font-mono uppercase tracking-widest group-hover:text-white transition-colors">Subir archivo</span>
           </div>
-        )}
-        <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
-      </div>
+        </div>
+      )}
+
+      <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+
+
+      {mode === "idle" && (
+        <p className="text-center text-white/25 text-[11px] font-mono uppercase tracking-widest">— sin foto seleccionada —</p>
+      )}
 
       <AnimatePresence>
         {error && (
-          <motion.p
-            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="text-red-400 text-sm font-plus border border-red-400/20 bg-red-400/5 rounded-[3px] px-4 py-2"
-          >
-            {error}
-          </motion.p>
+          <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="text-red-300 text-sm font-plus border border-red-500/30 bg-red-500/10 rounded-[6px] px-4 py-3"
+          >{error}</motion.p>
         )}
       </AnimatePresence>
 
-      <div className="flex gap-3">
+      <div className="flex gap-4 mt-2">
         <button
-          onClick={onBack}
+          onClick={() => { cancelCamera(); onBack(); }}
           disabled={loading}
-          className="
-            h-[54px] flex-1 border border-white/20 rounded-[3px]
-            text-white/50 text-sm font-plus tracking-widest uppercase
-            hover:bg-white/5 hover:text-white transition-colors
-            disabled:opacity-40
-          "
-        >
-          ← Volver
-        </button>
+          className="h-[56px] flex-1 border border-white/20 rounded-[6px] bg-black/20 text-white/70 text-sm font-plus font-bold tracking-[0.15em] uppercase hover:bg-white/10 hover:text-white transition-colors disabled:opacity-40"
+        >← Volver</button>
         <motion.button
-          onClick={handleSubmit}
-          disabled={loading}
-          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-          className="
-            h-[54px] flex-[2] backdrop-blur-sm border border-white/50 rounded-[3px]
-            text-white text-sm font-plus tracking-widest uppercase
-            hover:bg-white/10 transition-colors
-            disabled:opacity-40 disabled:cursor-not-allowed
-            flex items-center justify-center gap-2
-          "
+          onClick={handleSubmit} disabled={loading}
+          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+          className="h-[56px] flex-[2] bg-white text-black rounded-[6px] shadow-lg shadow-white/10 text-[14px] font-plus font-bold tracking-[0.15em] uppercase hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {loading ? (
-            <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Guardando...</>
-          ) : "Guardar docente ✓"}
+          {loading
+            ? <><span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> Guardando...</>
+            : <>Guardar docente <Check size={18} /></>}
         </motion.button>
       </div>
     </div>
@@ -348,6 +492,7 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
 }
 
 /* Success screen  */
+
 function StepSuccess({ onReset }: { onReset: () => void }) {
   return (
     <motion.div
@@ -386,20 +531,20 @@ function StepSuccess({ onReset }: { onReset: () => void }) {
 const slideVariants = {
   initial: (dir: number) => ({ opacity: 0, x: dir * 32 }),
   animate: { opacity: 1, x: 0 },
-  exit:    (dir: number) => ({ opacity: 0, x: dir * -32 }),
+  exit: (dir: number) => ({ opacity: 0, x: dir * -32 }),
 };
 
 
 
 export default function FormularioRegistro() {
   const [step, setStep] = useState(0);
-  const [dir, setDir]   = useState(1);
+  const [dir, setDir] = useState(1);
   const [info, setInfo] = useState<DocenteInfo | null>(null);
   const [done, setDone] = useState(false);
 
-  const goNext = () => { setDir(1);  setStep(s => s + 1); };
+  const goNext = () => { setDir(1); setStep(s => s + 1); };
   const goBack = () => { setDir(-1); setStep(s => s - 1); };
-  const reset  = () => { setStep(0); setInfo(null); setDone(false); };
+  const reset = () => { setStep(0); setInfo(null); setDone(false); };
 
   const stepKey = done ? "success" : `step${step}`;
 
@@ -408,7 +553,7 @@ export default function FormularioRegistro() {
       initial={{ opacity: 0, y: 32 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-lg"
+      className="w-full max-w-lg bg-black/30 backdrop-blur-xl border border-white/10 p-8 rounded-[12px] shadow-2xl"
     >
       {!done && <StepIndicator current={step} />}
 
