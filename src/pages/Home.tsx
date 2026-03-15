@@ -4,9 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TextType from "@/components/text/TextType";
 import eye from "@/assets/icons/eye-icon.svg";
 import Navbar from "@/components/Navbar";
-import ScrollFloat from "@/components/text/ScrollFloat";
-import ScrollReveal from "@/components/text/ScrollReveal";
-import { motion, useScroll } from 'framer-motion';
+import AcercaDe from "@/components/AcercaDe";
 gsap.registerPlugin(ScrollTrigger);
 
 interface HomeProps {
@@ -40,7 +38,26 @@ function Home({ startAnimation }: HomeProps) {
 
       /* ── Entry Timeline ──────────────────────────────────────── */
       // Only transform + opacity — GPU-friendly (no filter:blur, no clipPath)
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      const tl = gsap.timeline({
+        defaults: { ease: "power3.out" },
+        onComplete: () => {
+          // Only now register the scroll-exit trigger, once the entry is done.
+          // This prevents early scroll from consuming the scrub before elements are visible.
+          ScrollTrigger.refresh();
+          gsap.timeline({
+            scrollTrigger: {
+              trigger: wrapperRef.current,
+              start: "top top",
+              end: "+=100%",
+              scrub: 1.8,
+            },
+          })
+            .to(headingRef.current, { y: -160, opacity: 0, ease: "none" }, 0)
+            .to(buttonsRef.current, { y: 60, opacity: 0, ease: "none" }, 0)
+            .to(bgRef.current, { scale: 1.07, ease: "none" }, 0)
+            .to(whiteRef.current, { opacity: 1, ease: "none" }, 0);
+        },
+      });
 
       tl
         // 1. BG: fade in + subtle scale
@@ -63,20 +80,6 @@ function Home({ startAnimation }: HomeProps) {
           "-=0.45"
         );
 
-      /* ── ScrollTrigger: Hero exit (CSS Sticky tracking) ──────── */
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: wrapperRef.current,
-          start: "top top",
-          end: "+=100%", // track the first 100vh of scrolling
-          scrub: 1.8,
-        },
-      })
-        .to(headingRef.current, { y: -160, opacity: 0, ease: "none" }, 0)
-        .to(buttonsRef.current, { y: 60, opacity: 0, ease: "none" }, 0)
-        .to(bgRef.current, { scale: 1.07, ease: "none" }, 0)
-        .to(whiteRef.current, { opacity: 1, ease: "none" }, 0);
-
     }, wrapperRef);
 
     return () => ctx.revert();
@@ -97,11 +100,11 @@ function Home({ startAnimation }: HomeProps) {
 
   
   return (
-    <div ref={wrapperRef} className="overflow-hidden">
+    <div ref={wrapperRef} className="relative pb-0">
 
       <Navbar />
 
-      {/* ━━ Hero Section ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* Hero Section  */}
       <section
         id="home"
         className="sticky top-0 z-0 h-dvh overflow-hidden "
@@ -173,36 +176,7 @@ function Home({ startAnimation }: HomeProps) {
         </div>
       </section>
 
-      {/* ━━ Placeholder sections ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section id="acerca-de" className="relative z-10 min-h-screen bg-white dark:bg-[#0F172A] flex flex-col items-center justify-center shadow-[0_-10px_30px_rgba(0,0,0,0.1)] py-24 px-8 md:px-24">
-
-        <motion.div className="flex flex-col items-center justify-center">
-          
-          <ScrollFloat
-            animationDuration={2}
-            ease="back.inOut(2)"
-            scrollStart="center bottom+=5%"
-            scrollEnd="bottom bottom-=50%"
-            stagger={0.05}
-            textClassName="dark: font-bold mb-16"
-          >
-            Acerca de
-          </ScrollFloat>
-        </motion.div>
-
-
-        <div className="text-foreground/80 text-xl md:text-4xl text-center max-w-5xl leading-relaxed">
-          <ScrollReveal
-            baseOpacity={0.1}
-            enableBlur={true}
-            baseRotation={3}
-            blurStrength={4}
-            textClassName=" font-bold mb-16"
-          >
-            When does a man die? When he is hit by a bullet? No! When he suffers a disease? No! When he ate a soup made out of a poisonous mushroom? No! A man dies when he is forgotten!
-          </ScrollReveal>
-        </div>
-      </section>
+      <AcercaDe />
 
       <section id="ambientes" className="relative z-10 h-screen bg-muted flex items-center justify-center">
         <h2 className="text-foreground text-4xl font-bold font-plus">Ambientes</h2>
