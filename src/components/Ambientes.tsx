@@ -11,7 +11,7 @@ interface Hotspot {
 // Puntos de ejemplo. Puedes agregar más aquí con sus respectivas coordenadas (x,y) 
 // para posicionarlos sobre el background mapa.
 const hotspots: Hotspot[] = [
-    { id: '1', x: 30, y: 40, title: 'Bloque A - Sistemas', description: 'Laboratorio equipado para desarrollo de software e innovación técnica.' },
+    { id: '1', x: 42.2, y: 40, title: 'Sistemas 3', description: 'Laboratorio equipado para desarrollo de software e innovación técnica.' },
     { id: '2', x: 60, y: 35, title: 'Auditorio Principal', description: 'Espacio para conferencias, talleres y eventos de integración.' },
     { id: '3', x: 45, y: 70, title: 'Cafetería y Zonas Verdes', description: 'Eje principal de descanso, alimentación y recreación.' },
     { id: '4', x: 80, y: 60, title: 'Administración', description: 'Oficinas principales de gestión y coordinación académica.' },
