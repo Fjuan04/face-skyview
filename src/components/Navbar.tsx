@@ -27,9 +27,8 @@ interface NavbarProps {
 
 /* ─── Default items (Home) ───────────────────────────────────── */
 const HOME_ITEMS: NavItem[] = [
-  { label: 'Home',      href: '#home',       type: 'anchor' },
-  { label: 'Acerca de', href: '#acerca-de',  type: 'anchor' },
-  { label: 'Ambientes', href: '#ambientes',  type: 'anchor' },
+  { label: 'Home', href: '#home', type: 'anchor' },
+  { label: 'Ambientes', href: '#ambientes', type: 'anchor' },
 ];
 
 /* ─── Component ──────────────────────────────────────────────── */
@@ -58,15 +57,15 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
     }
   };
 
-  const isActive   = solidBg || scrolled;
-  const textColor  = isActive ? (isDark ? 'text-white' : 'text-slate-900') : 'text-white';
-  const bgColor    = isActive
+  const isActive = solidBg || scrolled;
+  const textColor = isActive ? (isDark ? 'text-white' : 'text-slate-900') : 'text-white';
+  const bgColor = isActive
     ? (isDark ? 'bg-[#0F172A] shadow-md' : 'bg-white shadow-sm')
     : 'bg-none';
   const btnClasses = isActive
     ? (isDark
-        ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
-        : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-900')
+      ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
+      : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-900')
     : 'bg-white/10 hover:bg-white/20 border-white/20 text-white';
 
   const navItems = items ?? [
@@ -99,7 +98,7 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
       </div>
 
       {/* Nav items */}
-      <ul className={`hidden md:flex gap-8 list-none m-0 p-0 font-plus font-medium text-[15px] transition-colors duration-300 ${textColor}`}>
+      <ul className={`absolute left-1/2 -translate-x-1/2 hidden md:flex gap-8 list-none m-0 p-0 font-plus font-medium text-[15px] transition-colors duration-300 ${textColor}`}>
         {navItems.map(item => (
           <li key={item.label}>
             {item.type === 'link' ? (
@@ -133,15 +132,13 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
           {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
         </button>
 
-        {!user && (
-          <Link
-            to="/login"
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
-            title="Iniciar Sesión"
-          >
-            <User size={18} />
-          </Link>
-        )}
+        <Link
+          to="/login"
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
+          title={user ? "Mi Perfil" : "Iniciar Sesión"}
+        >
+          <User size={18} />
+        </Link>
 
         <a href="#" className="h-10 w-10 md:h-12 md:w-12 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
           <img

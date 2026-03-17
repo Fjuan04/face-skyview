@@ -328,9 +328,16 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
     setError(null);
     try {
       const fd = new FormData();
-      Object.entries(info).forEach(([k, v]) => v && fd.append(k, String(v)));
-      if (photoBlob) fd.append("foto", photoBlob, "docente-foto.jpg");
-      await api.post("/admin/docentes", fd as unknown as Record<string, unknown>);
+      // Formatear los campos según lo requerido por el controlador de Laravel
+      fd.append("fullname", info.username);
+      fd.append("email", info.institutional_email || info.personal_email || "");
+      // Usar el documento como contraseña por defecto (debe ir confirmada)
+      fd.append("password", info.document);
+      fd.append("password_confirmation", info.document);
+
+      if (photoBlob) fd.append("photo", photoBlob, "docente-foto.jpg");
+
+      await api.post("/docent", fd);
       onDone();
     } catch {
       setError("Error al guardar el docente. Intenta de nuevo.");

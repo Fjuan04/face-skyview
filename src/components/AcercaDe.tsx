@@ -36,116 +36,190 @@ const STEPS = [
 ];
 
 export default function AcercaDe() {
-  const sectionRef  = useRef<HTMLDivElement>(null);
-  const pinRef      = useRef<HTMLDivElement>(null);
-  const titleRef    = useRef<HTMLDivElement>(null);
-  // wraps both columns — fades out in phase 1 before cards appear
-  const columnsRef  = useRef<HTMLDivElement>(null);
-  const cardRef     = useRef<HTMLDivElement>(null);
-  // the lens zoom dot — hidden initially, zooms in phase 1
-  const lensRef     = useRef<HTMLDivElement>(null);
-  const wifiRef     = useRef<HTMLDivElement>(null);
-  const stepsRef    = useRef<(HTMLDivElement | null)[]>([]);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const columnsRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const wifiRef = useRef<HTMLDivElement>(null);
+  const stepsRef = useRef<(HTMLDivElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement>(null);
+  const gridCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // hide lens dot at start
-      gsap.set(lensRef.current,  { opacity: 0, scale: 1 });
-      // hide wifi + step-cards
-      gsap.set(wifiRef.current,  { opacity: 0 });
-      stepsRef.current.forEach((el) => el && gsap.set(el, { opacity: 0, x: 80 }));
+    let ctx: gsap.Context | null = null;
 
-      const totalScroll = window.innerHeight * 5;
+    const buildAnimations = () => {
+      // Clean previous context + triggers before rebuilding
+      if (ctx) ctx.revert();
+      ScrollTrigger.refresh();
 
-      ScrollTrigger.create({
-        trigger:     sectionRef.current,
-        start:       "top top",
-        end:         `+=${totalScroll}`,
-        pin:         pinRef.current,
-        pinSpacing:  true,
-        anticipatePin: 1,
-      });
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      const totalScroll = window.innerHeight * (isDesktop ? 2.5 : 3);
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
+      ctx = gsap.context(() => {
+        /* ── Title: fast entrance animation (non-scrubbed, once) ──────────
+           Fires as soon as the section reaches 90% of the viewport.
+           No scroll-lag — just a clean 0.55s ease-in.                     */
+        if (titleRef.current) {
+          gsap.set(titleRef.current, { y: 40, opacity: 0 });
+          gsap.to(titleRef.current, {
+            y: 0,
+            opacity: 1,
+            duration: 0.55,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              // Fire only when section is fully pinned at the top
+              start: "top top",
+              once: true,
+            },
+          });
+        }
+
+        /* ── Columns: quick entrance, same trigger ────────────────────── */
+        if (columnsRef.current) {
+          gsap.set(columnsRef.current, { y: 30, opacity: 0 });
+          gsap.to(columnsRef.current, {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            delay: 0.1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              once: true,
+            },
+          });
+        }
+
+        /* ── Card: subtle 3D entrance (non-scrubbed) ──────────────────── */
+        if (cardRef.current) {
+          gsap.set(cardRef.current, { rotateY: -18, scale: 0.92 });
+          gsap.to(cardRef.current, {
+            rotateY: 0,
+            scale: 1,
+            duration: 0.7,
+            delay: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              once: true,
+            },
+          });
+        }
+
+        /* ── Paused timeline + ratchet pin ─────────────────────────────────
+           The timeline is paused and NOT attached to a scrub. Instead, a
+           dedicated ScrollTrigger drives it forward via onUpdate.
+           Once completed (progress ≥ 1), reverse scroll is ignored — the
+           animation stays frozen at its final state while the section
+           remains pinned so the user can scroll back to Hero freely.       */
+        const tl = gsap.timeline({ paused: true });
+
+        // Phase 1 — title + columns exit  (0.16 – 0.28)
+        if (titleRef.current) {
+          tl.to(titleRef.current, { y: -40, opacity: 0, duration: 0.1 }, 0.16);
+        }
+        if (columnsRef.current) {
+          tl.to(columnsRef.current, { y: -30, opacity: 0, duration: 0.1 }, 0.16);
+        }
+
+        // Phase 2 — WiFi rings  (0.32 – 0.54)
+        if (wifiRef.current) {
+          tl
+            .fromTo(wifiRef.current,
+              { opacity: 0, scale: 0.5 },
+              { opacity: 1, scale: 1, duration: 0.1, ease: "back.out(1.6)" },
+              0.32
+            )
+            .to(wifiRef.current, { opacity: 0, scale: 1.5, duration: 0.1 }, 0.54);
+        }
+
+        // Phase 3 — cards
+        if (isDesktop) {
+          gridCardsRef.current.forEach((el, i) => {
+            if (!el) return;
+            tl.fromTo(
+              el,
+              { y: 50, opacity: 0, scale: 0.93 },
+              { y: 0, opacity: 1, scale: 1, duration: 0.12, ease: "power3.out" },
+              0.60 + i * 0.07
+            );
+          });
+        } else {
+          const base = 0.40;
+          const gap = 0.145;
+          stepsRef.current.forEach((el, i) => {
+            if (!el) return;
+            const s = base + i * gap;
+            tl
+              .fromTo(el,
+                { x: 90, opacity: 0, rotateY: 14 },
+                { x: 0, opacity: 1, rotateY: 0, duration: 0.1, ease: "power3.out" },
+                s
+              )
+              .to(el, { x: -90, opacity: 0, duration: 0.07 }, s + 0.11);
+          });
+        }
+
+        // Progress bar
+        if (progressRef.current) {
+          tl.fromTo(progressRef.current,
+            { scaleX: 0 },
+            { scaleX: 1, duration: 0.65, ease: "none", transformOrigin: "left center" },
+            0.28
+          );
+        }
+
+        // ScrollTrigger: handles PIN + drives the timeline forward (ratchet)
+        let completed = false;
+        ScrollTrigger.create({
           trigger: sectionRef.current,
-          start:   "top top",
-          end:     `+=${totalScroll}`,
-          scrub:   1.4,
-        },
-      });
+          start: "top top",
+          end: `+=${totalScroll}`,
+          pin: pinRef.current,
+          pinSpacing: true,
+          anticipatePin: 1,
+          onUpdate(self) {
+            if (completed) return; // animation locked at final state
+            // Drive timeline smoothly (equivalent to scrub:2)
+            gsap.to(tl, {
+              progress: self.progress,
+              duration: 1.6,
+              ease: "power2.out",
+              overwrite: true,
+            });
+            if (self.progress >= 0.99) {
+              completed = true;
+              tl.progress(1); // snap to final state immediately
+            }
+          },
+        });
+      }, sectionRef);
+    };
 
-      // Phase 0 — title + columns appear  (0 – 0.12)
-      tl
-        .fromTo(titleRef.current,
-          { y: 60, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.1, ease: "power3.out" },
-          0
-        )
-        .fromTo(columnsRef.current,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.12, ease: "power3.out" },
-          0.04
-        )
-        .fromTo(cardRef.current,
-          { rotateY: -22, scale: 0.9 },
-          { rotateY: 0, scale: 1, duration: 0.1, ease: "power3.out" },
-          0.06
-        );
+    // Initial setup
+    buildAnimations();
 
-      // Phase 1 — exit columns + lens zoom  (0.16 – 0.30)
-      tl
-        .to(titleRef.current,   { y: -40, opacity: 0, duration: 0.08 }, 0.16)
-        .to(columnsRef.current, { y: -30, opacity: 0, duration: 0.1  }, 0.16)
-        // lens dot becomes visible then explodes to fill the screen
-        .fromTo(lensRef.current,
-          { opacity: 1, scale: 1 },
-          { opacity: 0, scale: 35, duration: 0.18, ease: "power2.in" },
-          0.20
-        );
+    // Resize: rebuild when crossing the lg breakpoint
+    const mql = window.matchMedia("(min-width: 1024px)");
+    mql.addEventListener("change", buildAnimations);
 
-      // Phase 2 — wifi rings  (0.32 – 0.56)
-      tl
-        .fromTo(wifiRef.current,
-          { opacity: 0, scale: 0.5 },
-          { opacity: 1, scale: 1,   duration: 0.1, ease: "back.out(1.6)" },
-          0.32
-        )
-        .to(wifiRef.current, { opacity: 0, scale: 1.5, duration: 0.1 }, 0.56);
-
-      // Phase 3-6 — step cards   (0.40 – 1.0)
-      const base = 0.40;
-      const gap  = 0.145;
-      stepsRef.current.forEach((el, i) => {
-        if (!el) return;
-        const s = base + i * gap;
-        tl
-          .fromTo(el,
-            { x: 90, opacity: 0, rotateY: 14 },
-            { x: 0, opacity: 1, rotateY: 0, duration: 0.1, ease: "power3.out" },
-            s
-          )
-          .to(el, { x: -90, opacity: 0, duration: 0.07 }, s + 0.11);
-      });
-
-      // Progress bar
-      tl.fromTo(progressRef.current,
-        { scaleX: 0 },
-        { scaleX: 1, duration: 0.65, ease: "none", transformOrigin: "left center" },
-        0.28
-      );
-    }, sectionRef);
-
-    return () => ctx.revert();
+    return () => {
+      mql.removeEventListener("change", buildAnimations);
+      if (ctx) ctx.revert();
+    };
   }, []);
 
-  // 3-D tilt
+  // 3-D tilt on ESP32-CAM card
   const onTilt = (e: React.MouseEvent<HTMLDivElement>) => {
     const r = cardRef.current?.getBoundingClientRect();
     if (!r) return;
-    const dx = ((e.clientX - r.left) / r.width  - 0.5) * 20;
-    const dy = ((e.clientY - r.top)  / r.height - 0.5) * -20;
+    const dx = ((e.clientX - r.left) / r.width - 0.5) * 20;
+    const dy = ((e.clientY - r.top) / r.height - 0.5) * -20;
     gsap.to(cardRef.current, { rotateX: dy, rotateY: dx, duration: 0.35, ease: "power2.out", overwrite: true });
   };
   const onTiltLeave = () => {
@@ -153,7 +227,7 @@ export default function AcercaDe() {
   };
 
   return (
-    <section ref={sectionRef} id="acerca-de" className="relative" style={{ minHeight: "600vh" }}>
+    <section ref={sectionRef} id="acerca-de" className="relative pt-24">
       <div
         ref={pinRef}
         className="w-full h-dvh overflow-hidden bg-white dark:bg-[#0F172A] relative
@@ -170,10 +244,11 @@ export default function AcercaDe() {
           }}
         />
 
-        {/* Title */}
+        {/* Title — starts hidden, enters fast via non-scrubbed trigger */}
         <div
           ref={titleRef}
-          className="absolute top-10 left-0 right-0 flex flex-col items-center gap-2 z-20 px-4"
+          className="absolute top-[72px] left-0 right-0 flex flex-col items-center gap-2 z-20 px-4"
+          style={{ opacity: 0 }}
         >
           <span className="text-xs font-plus font-semibold tracking-[0.3em] uppercase text-foreground/40">
             Acerca del sistema
@@ -186,13 +261,13 @@ export default function AcercaDe() {
           </h2>
         </div>
 
-        {/* Two-column layout — fades out in phase 1 */}
+        {/* Two-column layout — enters fast via non-scrubbed trigger */}
         <div
           ref={columnsRef}
           className="relative z-10 w-full max-w-7xl px-6 md:px-14
                      flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-20"
+          style={{ opacity: 0 }}
         >
-          {/* Left — description */}
           <div className="flex-1 flex flex-col gap-5 max-w-lg">
             <p
               className="font-plus font-bold text-foreground leading-tight"
@@ -218,7 +293,7 @@ export default function AcercaDe() {
             </div>
           </div>
 
-          {/* Right — ESP32-CAM card */}
+          {/* ESP32-CAM card */}
           <div
             ref={cardRef}
             onMouseMove={onTilt}
@@ -226,16 +301,14 @@ export default function AcercaDe() {
             className="relative flex-shrink-0 cursor-pointer"
             style={{ transformStyle: "preserve-3d", willChange: "transform" }}
           >
-            {/* Card face */}
             <div
               className="relative rounded-2xl border border-border bg-card select-none overflow-hidden"
               style={{
-                width:  "clamp(240px, 28vw, 440px)",
+                width: "clamp(240px, 28vw, 440px)",
                 height: "clamp(240px, 28vw, 440px)",
                 boxShadow: "0 40px 100px rgba(0,0,0,0.2), 0 0 0 1px var(--border)",
               }}
             >
-              {/* PCB micro-grid */}
               <div
                 className="absolute inset-0 z-10 pointer-events-none opacity-[0.05]"
                 style={{
@@ -243,51 +316,28 @@ export default function AcercaDe() {
                     "repeating-linear-gradient(0deg,var(--foreground) 0,var(--foreground) 1px,transparent 1px,transparent 24px),repeating-linear-gradient(90deg,var(--foreground) 0,var(--foreground) 1px,transparent 1px,transparent 24px)",
                 }}
               />
-
-              {/* ESP32-CAM photo — always fully visible */}
               <img
                 src="/esp32-cam.png"
                 alt="ESP32-CAM module"
                 className="absolute inset-0 w-full h-full object-contain p-5 z-20"
                 style={{ filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.38))" }}
               />
-
-              {/* Corner pins */}
-              {["top-3 left-3","top-3 right-3","bottom-3 left-3","bottom-3 right-3"].map((p) => (
+              {["top-3 left-3", "top-3 right-3", "bottom-3 left-3", "bottom-3 right-3"].map((p) => (
                 <div key={p} className={`absolute ${p} w-2.5 h-2.5 rounded-full bg-foreground/25 border border-border z-30`} />
               ))}
-
-              {/* Depth layer */}
               <div
                 className="absolute inset-0 rounded-2xl -z-10"
                 style={{ transform: "translateZ(-22px)", background: "var(--muted)" }}
               />
             </div>
-
-            {/* ESP32 label */}
             <div className="mt-4 text-center">
               <p className="font-plus font-bold text-foreground text-base tracking-tight">ESP32-CAM</p>
               <p className="font-plus text-foreground/40 text-sm">AI Thinker Module</p>
             </div>
-
-            {/* Lens zoom dot — hidden at start, zooms in phase 1 */}
-            <div
-              ref={lensRef}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none z-40"
-              style={{ opacity: 0 }}
-            >
-              <div
-                className="w-20 h-20 rounded-full"
-                style={{
-                  background: "radial-gradient(circle at 35% 35%, #1a6eff 0%, #0d1f6e 50%, #020b1a 100%)",
-                  boxShadow: "0 0 0 4px rgba(26,110,255,0.25), inset 0 0 20px rgba(0,80,255,0.4)",
-                }}
-              />
-            </div>
           </div>
         </div>
 
-        {/* WiFi rings — phase 2 */}
+        {/* WiFi rings */}
         <div
           ref={wifiRef}
           className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
@@ -298,7 +348,7 @@ export default function AcercaDe() {
               key={i}
               className="absolute rounded-full border border-primary/35"
               style={{
-                width:  `${(i + 1) * 220}px`,
+                width: `${(i + 1) * 220}px`,
                 height: `${(i + 1) * 220}px`,
                 animation: `wifi-pulse 2s ease-out ${i * 0.45}s infinite`,
               }}
@@ -310,26 +360,54 @@ export default function AcercaDe() {
           </div>
         </div>
 
-        {/* Step cards — phases 3-6, absolute centered */}
+        {/* DESKTOP: Grid 2×2 — revealed by scrub */}
+        <div className="absolute inset-0 hidden lg:flex items-center justify-center z-20 pointer-events-none px-10">
+          <div className="grid grid-cols-2 gap-5 w-full max-w-5xl">
+            {STEPS.map((step, i) => (
+              <div
+                key={step.id}
+                ref={(el) => { gridCardsRef.current[i] = el; }}
+                className="rounded-2xl border border-border bg-card shadow-2xl
+                           flex overflow-hidden pointer-events-auto"
+                style={{ opacity: 0 }}
+              >
+                <div className="w-1.5 flex-shrink-0 bg-primary" />
+                <div className="flex flex-col gap-3 py-7 px-7">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                                    bg-primary text-primary-foreground font-bold font-plus text-sm">
+                      {i + 1}
+                    </div>
+                    <span className="text-xs font-plus font-semibold tracking-widest uppercase text-foreground/40">
+                      {step.label}
+                    </span>
+                  </div>
+                  <h3 className="font-plus font-bold text-foreground text-xl leading-tight">
+                    {step.title}
+                  </h3>
+                  <p className="font-plus text-foreground/60 text-sm leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* MOBILE: sequential cards */}
         {STEPS.map((step, i) => (
           <div
             key={step.id}
             ref={(el) => { stepsRef.current[i] = el; }}
             className="absolute z-20 rounded-2xl border border-border bg-card shadow-2xl
-                       flex overflow-hidden"
-            style={{
-              width: "clamp(290px, 52vw, 660px)",
-              transformStyle: "preserve-3d",
-              opacity: 0,
-            }}
+                       flex overflow-hidden lg:hidden"
+            style={{ width: "clamp(290px, 52vw, 660px)", opacity: 0 }}
           >
             <div className="w-1.5 flex-shrink-0 bg-primary" />
             <div className="flex flex-col gap-3 py-8 px-8">
               <div className="flex items-center gap-3">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
-                              bg-primary text-primary-foreground font-bold font-plus text-sm"
-                >
+                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
+                                bg-primary text-primary-foreground font-bold font-plus text-sm">
                   {i + 1}
                 </div>
                 <span className="text-xs font-plus font-semibold tracking-widest uppercase text-foreground/40">

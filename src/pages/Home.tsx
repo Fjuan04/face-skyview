@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TextType from "@/components/text/TextType";
 import eye from "@/assets/icons/eye-icon.svg";
 import Navbar from "@/components/Navbar";
-import AcercaDe from "@/components/AcercaDe";
+import Ambientes from "@/components/Ambientes";
 gsap.registerPlugin(ScrollTrigger);
 
 interface HomeProps {
@@ -98,7 +98,7 @@ function Home({ startAnimation }: HomeProps) {
   };
 
 
-  
+
   return (
     <div ref={wrapperRef} className="relative pb-0">
 
@@ -176,13 +176,11 @@ function Home({ startAnimation }: HomeProps) {
         </div>
       </section>
 
-      <AcercaDe />
-
-      <section id="ambientes" className="relative z-10 h-screen bg-muted flex items-center justify-center">
-        <h2 className="text-foreground text-4xl font-bold font-plus">Ambientes</h2>
+      <section id="ambientes" className="relative z-10 w-full min-h-screen bg-background">
+        <Ambientes />
       </section>
 
-      
+
 
     </div>
   );
