@@ -81,7 +81,16 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
     setError(null);
     try {
       const data = await api.post("/search/docent", { document: documento }) as DocenteInfo;
-      onNext(data);
+      
+      let mappedGender = data.gender;
+      if (data.gender === "M") mappedGender = "Masculino";
+      else if (data.gender === "F") mappedGender = "Femenino";
+
+      onNext({
+        ...data,
+        gender: mappedGender,
+        document: data.document || documento
+      });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -331,6 +340,10 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
       // Formatear los campos según lo requerido por el controlador de Laravel
       fd.append("fullname", info.username);
       fd.append("email", info.institutional_email || info.personal_email || "");
+      fd.append("document", info.document || "");
+      if (info.gender) fd.append("gender", info.gender);
+      if (info.id) fd.append("id", String(info.id));
+
       // Usar el documento como contraseña por defecto (debe ir confirmada)
       fd.append("password", info.document);
       fd.append("password_confirmation", info.document);
@@ -339,8 +352,10 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
 
       await api.post("/docent", fd);
       onDone();
-    } catch {
-      setError("Error al guardar el docente. Intenta de nuevo.");
+    } catch (err: any) {
+      console.error("Error saving docent:", err);
+      const errorMessage = err.message || (typeof err === "string" ? err : "Error al guardar el docente. Intenta de nuevo.");
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
