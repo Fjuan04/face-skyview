@@ -14,8 +14,8 @@ interface HomeProps {
 function Home({ startAnimation }: HomeProps) {
   /* ─── Refs ─────────────────────────────────────────────────── */
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
-  const whiteRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   const btn1Ref = useRef<HTMLAnchorElement>(null);
@@ -44,18 +44,22 @@ function Home({ startAnimation }: HomeProps) {
           // Only now register the scroll-exit trigger, once the entry is done.
           // This prevents early scroll from consuming the scrub before elements are visible.
           ScrollTrigger.refresh();
+          
+          // Efecto: El Hero es Z-20 y se queda pegado (sticky).
+          // El mapa es Z-10, por lo que hace scroll normal y va subiendo *por detrás* del Hero.
+          // Mientras scrolleamos, desvanecemos el Hero completo para ir revelando el mapa que viene detrás.
           gsap.timeline({
             scrollTrigger: {
               trigger: wrapperRef.current,
               start: "top top",
-              end: "+=100%",
+              end: "+=100%", // Dura el 100% de la altura de la pantalla
               scrub: 1.8,
             },
           })
             .to(headingRef.current, { y: -160, opacity: 0, ease: "none" }, 0)
             .to(buttonsRef.current, { y: 60, opacity: 0, ease: "none" }, 0)
             .to(bgRef.current, { scale: 1.07, ease: "none" }, 0)
-            .to(whiteRef.current, { opacity: 1, ease: "none" }, 0);
+            .to(heroRef.current, { autoAlpha: 0, ease: "power2.inOut" }, 0); // Desvanecemos el hero para revelar lo de atras (autoAlpha quita los pointer events al llegar a 0)
         },
       });
 
@@ -100,14 +104,15 @@ function Home({ startAnimation }: HomeProps) {
 
 
   return (
-    <div ref={wrapperRef} className="relative pb-0">
+    <div ref={wrapperRef} className="relative pb-0 bg-background">
 
       <Navbar />
 
       {/* Hero Section  */}
       <section
+        ref={heroRef}
         id="home"
-        className="sticky top-0 z-0 h-dvh overflow-hidden "
+        className="sticky top-0 z-20 h-dvh overflow-hidden bg-black"
       >
         {/* BG image based on theme */}
         <div
@@ -119,11 +124,7 @@ function Home({ startAnimation }: HomeProps) {
         {/* Bottom gradient */}
         <div className="hero-gradient absolute inset-0 z-[1] pointer-events-none" />
 
-        {/* Exit overlay (white in light mode, darkslate in dark mode) */}
-        <div
-          ref={whiteRef}
-          className="absolute inset-0 z-[2] opacity-0 pointer-events-none dark:bg-[#0F172A] bg-white"
-        />
+
 
         {/* Grain */}
         <div className="grain-overlay absolute inset-0 z-[3] pointer-events-none" />

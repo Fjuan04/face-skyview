@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login';
 import Administracion from './pages/Administracion';
-import MapConfigurator from './components/admin/MapConfigurator';
 import { useState } from 'react';
 import Loader from "./components/Loader";
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,11 +20,6 @@ function Router(){
             <Route path='/administracion' element={
                 <ProtectedRoute>
                     <Administracion/>
-                </ProtectedRoute>
-            }/>
-            <Route path='/administracion/mapa' element={
-                <ProtectedRoute>
-                    <MapConfigurator/>
                 </ProtectedRoute>
             }/>
         </Routes>

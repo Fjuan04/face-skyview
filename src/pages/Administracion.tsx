@@ -6,12 +6,13 @@ import FormularioRegistro from "@/components/admin/FormularioRegistro";
 import ListadoAmbientes, {
   type Ambiente,
 } from "@/components/admin/ListadoAmbientes";
+import MapConfigurator from "@/components/admin/MapConfigurator";
 import { api } from "@/lib/api"; // ajusta al path real
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* Tabs */
-type Tab = "docentes" | "ambientes";
+type Tab = "docentes" | "ambientes" | "mapa";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "docentes", label: "Registrar docente" },
@@ -104,6 +105,13 @@ export default function Administracion() {
             onClick: () => setActiveTab("ambientes"),
             active: activeTab === "ambientes",
           },
+          {
+            label: "Mapa",
+            href: "mapa",
+            type: "button",
+            onClick: () => setActiveTab("mapa"),
+            active: activeTab === "mapa",
+          },
         ]}
       />
 
@@ -123,15 +131,16 @@ export default function Administracion() {
       {/* ── Scrollable content on top of sticky bg ──────────── */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Top spacer so content starts below navbar */}
-        <div className="h-24" />
+        <div className={`shrink-0 ${activeTab === 'mapa' ? 'h-20' : 'h-24'}`} />
 
-        <main className="flex-1 flex flex-col items-center px-6 justify-center">
+        <main className={`flex-1 flex flex-col w-full ${activeTab === 'mapa' ? '' : 'items-center px-6 justify-center'}`}>
           
           {/* Tab content */}
           {activeTab === "docentes" && <FormularioRegistro />}
           {activeTab === "ambientes" && (
             <ListadoAmbientes ambientes={ambientes} onToggle={handleToggle} />
           )}
+          {activeTab === "mapa" && <MapConfigurator />}
         </main>
       </div>
     </div>

@@ -84,7 +84,7 @@ export default function MapConfigurator() {
     const selectedAmbient = ambientes.find(a => a.id === selectedAmbientId);
 
     return (
-        <div className="flex h-screen bg-background text-foreground overflow-hidden">
+        <div className="flex w-full h-[calc(100vh-5rem)] bg-background text-foreground overflow-hidden">
 
             {/* Panel Izquierdo */}
             <aside className="w-80 border-r border-border bg-card overflow-y-auto flex flex-col p-4 z-20 shadow-xl relative shrink-0">
@@ -136,8 +136,8 @@ export default function MapConfigurator() {
                 )}
             </aside>
 
-            {/* Panel Derecho: Mapa con scroll horizontal para que el cálculo sea consistente */}
-            <main className="flex-1 relative bg-neutral-900 overflow-x-auto">
+            {/* Panel Derecho: Contenedor principal sin scroll para que los indicadores queden fijos */}
+            <main className="flex-1 relative bg-neutral-900 overflow-hidden">
 
                 {/* Indicador superior */}
                 <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
@@ -170,8 +170,10 @@ export default function MapConfigurator() {
                     </div>
                 )}
 
-                {/* Mapa con ancho fijo — ref para calcular coordenadas correctamente */}
-                <div
+                {/* Contenedor del mapa con scroll independiente */}
+                <div className="w-full h-full overflow-auto">
+                    {/* Mapa con ancho fijo — ref para calcular coordenadas correctamente */}
+                    <div
                     ref={mapRef}
                     className={`relative h-full min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-300 dark:bg-[url('/sena-noche.png')] bg-[url('/sena-dia.png')] border-4 ${
                         selectedAmbientId ? 'cursor-crosshair border-primary/50' : 'cursor-default border-transparent opacity-70'
@@ -202,6 +204,7 @@ export default function MapConfigurator() {
                             </span>
                         </div>
                     ))}
+                </div>
                 </div>
             </main>
         </div>
