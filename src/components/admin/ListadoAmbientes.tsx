@@ -1,21 +1,41 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
 
 /* ─── Types ──────────────────────────────────────────────────── */
 export interface Ambiente {
   id: number;
-  nombre: string;
-  capacidad: number;
-  ocupacion: number;
-  abierto: boolean;
+  name: string;
+  state: string;
+  capacity: number;
+  isOccupied: boolean;
 }
 
-interface AmbientesListProps {
-  ambientes: Ambiente[];
-  onToggle: (id: number, abierto: boolean) => void;
-}
+/* Component  */
+export default function ListadoAmbientes() {
+  const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-/* ─── Component ──────────────────────────────────────────────── */
-export default function ListadoAmbientes({ ambientes, onToggle }: AmbientesListProps) {
+  useEffect(() => {
+    api
+      .get("/ambients")
+      .then((data) => setAmbientes(data as Ambiente[]))
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const handleToggle = async (id: number, currentOccupied: boolean) => {
+    try {
+      const newOccupiedState = !currentOccupied;
+      await api.put(`/admin/ambientes/${id}`, { isOccupied: newOccupiedState });
+      setAmbientes((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, isOccupied: newOccupiedState } : a)),
+      );
+    } catch (err) {
+      console.error("Error al actualizar ambiente", err);
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl">
       {/* Header */}
@@ -34,7 +54,12 @@ export default function ListadoAmbientes({ ambientes, onToggle }: AmbientesListP
 
       {/* List */}
       <ul className="flex flex-col gap-3">
-        {ambientes.map((amb, i) => (
+        {isLoading && (
+          <p className="text-white/40 text-sm font-plus text-center py-10">Cargando...</p>
+        )}
+        {!isLoading && ambientes.map((amb, i) => {
+          const isDisponible = !amb.isOccupied;
+          return (
           <motion.li
             key={amb.id}
             initial={{ opacity: 0, x: -16 }}
@@ -49,10 +74,10 @@ export default function ListadoAmbientes({ ambientes, onToggle }: AmbientesListP
             {/* Info */}
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="text-white font-plus font-semibold truncate">
-                {amb.nombre}
+                {amb.name}
               </span>
               <span className="text-white/40 text-xs font-mono">
-                {amb.ocupacion} / {amb.capacidad} ocupantes
+                {amb.capacity > 0 ? `${amb.capacity} personas de capacidad` : 'Capacidad sin definir'}
               </span>
             </div>
 
@@ -60,30 +85,31 @@ export default function ListadoAmbientes({ ambientes, onToggle }: AmbientesListP
             <span
               className={`
                 text-[11px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-[2px] shrink-0
-                ${amb.abierto
+                ${isDisponible
                   ? "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"
-                  : "text-red-400 bg-red-400/10 border border-red-400/20"}
+                  : "text-orange-400 bg-orange-400/10 border border-orange-400/20"}
               `}
             >
-              {amb.abierto ? "Abierto" : "Cerrado"}
+              {isDisponible ? "Disponible" : "Ocupado"}
             </span>
 
             {/* Toggle button */}
             <button
-              onClick={() => onToggle(amb.id, !amb.abierto)}
-              className="
+              onClick={() => handleToggle(amb.id, amb.isOccupied)}
+              className={`
                 shrink-0 h-9 px-4
                 backdrop-blur-sm border border-white/20 rounded-[3px]
                 text-white text-xs font-plus uppercase tracking-wider
-                hover:bg-white/10 transition-colors
-              "
+                transition-colors
+                ${isDisponible ? "hover:bg-emerald-500/20" : "hover:bg-orange-500/20"}
+              `}
             >
-              {amb.abierto ? "Cerrar" : "Abrir"}
+              {isDisponible ? "Dar ingreso" : "Liberar"}
             </button>
           </motion.li>
-        ))}
+        )})}
 
-        {ambientes.length === 0 && (
+        {!isLoading && ambientes.length === 0 && (
           <p className="text-white/30 text-sm font-plus text-center py-10">
             No hay ambientes registrados
           </p>

@@ -27,7 +27,7 @@ interface NavbarProps {
 
 /* ─── Default items (Home) ───────────────────────────────────── */
 const HOME_ITEMS: NavItem[] = [
-  { label: 'Home', href: '#home', type: 'anchor' },
+  { label: 'Inicio', href: '#home', type: 'anchor' },
   { label: 'Ambientes', href: '#ambientes', type: 'anchor' },
 ];
 

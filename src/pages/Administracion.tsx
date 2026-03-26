@@ -3,21 +3,13 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import FormularioRegistro from "@/components/admin/FormularioRegistro";
-import ListadoAmbientes, {
-  type Ambiente,
-} from "@/components/admin/ListadoAmbientes";
+import ListadoAmbientes from "@/components/admin/ListadoAmbientes";
 import MapConfigurator from "@/components/admin/MapConfigurator";
-import { api } from "@/lib/api"; // ajusta al path real
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* Tabs */
 type Tab = "docentes" | "ambientes" | "mapa";
-
-const TABS: { key: Tab; label: string }[] = [
-  { key: "docentes", label: "Registrar docente" },
-  { key: "ambientes", label: "Ambientes" },
-];
 
 /* Component  */
 export default function Administracion() {
@@ -27,7 +19,6 @@ export default function Administracion() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState<Tab>("docentes");
-  const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
 
   /* Pin initial states  */
   useLayoutEffect(() => {
@@ -63,27 +54,6 @@ export default function Administracion() {
 
     return () => ctx.revert();
   }, []);
-
-  /* ── Load ambientes  */
-  useEffect(() => {
-    if (activeTab !== "ambientes") return;
-    api
-      .get("/admin/ambientes")
-      .then((data) => setAmbientes(data as Ambiente[]))
-      .catch(console.error);
-  }, [activeTab]);
-
-  /* Toggle ambiente  */
-  const handleToggle = async (id: number, abierto: boolean) => {
-    try {
-      await api.put(`/admin/ambientes/${id}`, { abierto });
-      setAmbientes((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, abierto } : a)),
-      );
-    } catch (err) {
-      console.error("Error al actualizar ambiente", err);
-    }
-  };
 
   return (
     <div ref={wrapperRef} className="min-h-screen overflow-hidden ">
@@ -137,9 +107,7 @@ export default function Administracion() {
           
           {/* Tab content */}
           {activeTab === "docentes" && <FormularioRegistro />}
-          {activeTab === "ambientes" && (
-            <ListadoAmbientes ambientes={ambientes} onToggle={handleToggle} />
-          )}
+          {activeTab === "ambientes" && <ListadoAmbientes />}
           {activeTab === "mapa" && <MapConfigurator />}
         </main>
       </div>
