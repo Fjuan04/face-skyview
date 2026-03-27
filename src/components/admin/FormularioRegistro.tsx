@@ -345,8 +345,8 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
       if (info.id) fd.append("id", String(info.id));
 
       // Usar el documento como contraseña por defecto (debe ir confirmada)
-      fd.append("password", info.document);
-      fd.append("password_confirmation", info.document);
+      fd.append("password", info.document + '12345');
+      fd.append("password_confirmation", info.document + '12345');
 
       if (photoBlob) fd.append("photo", photoBlob, "docente-foto.jpg");
 

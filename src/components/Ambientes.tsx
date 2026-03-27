@@ -12,6 +12,10 @@ interface Ambient {
   updatedAt: string;
   x?: number;
   y?: number;
+  docente?: string;
+  ficha?: string;
+  clase?: string;
+  horario?: string;
 }
 
 // Ancho de referencia fijo del mapa. DEBE ser el mismo en MapConfigurator.tsx
@@ -102,7 +106,7 @@ export default function Ambientes() {
                         >
                             {/* Tooltip — z-20 para que quede por encima de otros puntos */}
                             <div
-                                className={`absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-background/95 backdrop-blur-md border border-border p-4 rounded-2xl shadow-2xl transition-all duration-300 origin-bottom pointer-events-none
+                                className={`absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-3 w-[26rem] max-w-[90vw] bg-background/95 backdrop-blur-md border border-border p-5 rounded-2xl shadow-2xl transition-all duration-300 origin-bottom pointer-events-none
                                     ${activeAmbientId === ambiente.id ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2'}`}
                             >
                                 <div className="flex justify-between items-start mb-2 gap-2">
@@ -118,15 +122,7 @@ export default function Ambientes() {
                                     </span>
                                 </div>
 
-                                <div className="space-y-1 mt-2">
-                                    <p className="text-muted-foreground text-sm flex items-center justify-between">
-                                        <span className="font-medium">Uso:</span>
-                                        <span className="truncate ml-2">{ambiente.usability || 'N/A'}</span>
-                                    </p>
-                                    <p className="text-muted-foreground text-sm flex items-center justify-between">
-                                        <span className="font-medium">Capacidad:</span>
-                                        <span>{ambiente.capacity > 0 ? `${ambiente.capacity} pax` : 'No definida'}</span>
-                                    </p>
+                                <div className="space-y-1.5 mt-3">
                                     <p className="text-muted-foreground text-sm flex items-center justify-between">
                                         <span className="font-medium">Disponibilidad:</span>
                                         <span className={ambiente.isOccupied
@@ -135,6 +131,46 @@ export default function Ambientes() {
                                             {ambiente.isOccupied ? 'Ocupado' : 'Disponible'}
                                         </span>
                                     </p>
+                                    
+                                    {ambiente.isOccupied ? (
+                                        <div className="pt-3 mt-3 border-t border-border/50 grid grid-cols-2 gap-x-4 gap-y-3">
+                                            {ambiente.ficha && (
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Ficha</span>
+                                                    <span className="text-foreground text-sm font-medium">{ambiente.ficha}</span>
+                                                </div>
+                                            )}
+                                            {ambiente.horario && (
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Horario</span>
+                                                    <span className="text-foreground text-sm font-medium">{ambiente.horario}</span>
+                                                </div>
+                                            )}
+                                            {ambiente.docente && (
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Docente</span>
+                                                    <span className="text-foreground text-sm font-medium leading-snug text-wrap">{ambiente.docente}</span>
+                                                </div>
+                                            )}
+                                            {ambiente.clase && (
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Clase</span>
+                                                    <span className="text-foreground text-sm font-medium leading-snug text-wrap">{ambiente.clase}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="pt-3 mt-3 border-t border-border/50 flex flex-col gap-2">
+                                            <p className="text-muted-foreground text-sm flex items-center justify-between">
+                                                <span className="font-medium">Uso:</span>
+                                                <span className="truncate ml-2">{ambiente.usability || 'N/A'}</span>
+                                            </p>
+                                            <p className="text-muted-foreground text-sm flex items-center justify-between">
+                                                <span className="font-medium">Capacidad:</span>
+                                                <span>{ambiente.capacity > 0 ? `${ambiente.capacity} pax` : 'No definida'}</span>
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Triángulo apuntando hacia abajo */}
