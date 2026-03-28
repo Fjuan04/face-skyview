@@ -3,7 +3,7 @@ import ShinyText from './text/ShinyText';
 import { useTheme } from './ThemeProvider';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 /* ─── Types ──────────────────────────────────────────────────── */
@@ -29,7 +29,6 @@ interface NavbarProps {
 const HOME_ITEMS: NavItem[] = [
   { label: 'Inicio', href: '#home', type: 'anchor' },
   { label: 'Ambientes', href: '#ambientes', type: 'anchor' },
-  { label: 'Clases', href: '/clases', type: 'link' },
 ];
 
 /* ─── Component ──────────────────────────────────────────────── */
@@ -58,6 +57,23 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
     }
   };
 
+  const navigate = useNavigate();
+
+  /** Handle Link clicks that include a hash (e.g. '/#ambientes') */
+  const handleLinkClick = (e: React.MouseEvent, href: string) => {
+    const hashIdx = href.indexOf('#');
+    if (hashIdx > 0) {
+      e.preventDefault();
+      const path = href.slice(0, hashIdx);   // e.g. '/'
+      const hash = href.slice(hashIdx);       // e.g. '#ambientes'
+      navigate(path);
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  };
+
   const isActive = solidBg || scrolled;
   const textColor = isActive ? (isDark ? 'text-white' : 'text-slate-900') : 'text-white';
   const bgColor = isActive
@@ -71,6 +87,10 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
 
   const navItems = items ?? [
     ...HOME_ITEMS,
+    // Añade el link de clases si el usuario está logueado (cualquier rol)
+    ...(user
+      ? [{ label: 'Clases', href: '/clases', type: 'link' as const }]
+      : []),
     // Añade el link de admin si el usuario es admin
     ...(user?.role_id === 1
       ? [{ label: 'Administración', href: '/administracion', type: 'link' as const }]
@@ -103,7 +123,11 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
         {navItems.map(item => (
           <li key={item.label}>
             {item.type === 'link' ? (
-              <Link to={item.href} className={itemClass(item.active)}>
+              <Link
+                to={item.href}
+                onClick={(e) => handleLinkClick(e, item.href)}
+                className={itemClass(item.active)}
+              >
                 {item.label}
               </Link>
             ) : item.type === 'button' ? (

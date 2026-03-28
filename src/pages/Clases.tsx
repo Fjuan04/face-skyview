@@ -1,8 +1,10 @@
-import { useLayoutEffect, useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useEffect, useRef, useState, useMemo } from "react";
 import gsap from "gsap";
 import Navbar from "@/components/Navbar";
+import type { NavItem } from "@/components/Navbar";
 import ScheduleList from "@/components/teacher/ScheduleList";
 import { Search, Calendar as CalendarIcon, Filter, Layers } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 /* Component  */
 export default function Clases() {
@@ -10,6 +12,16 @@ export default function Clases() {
   const bgRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+
+  const navItems = useMemo<NavItem[]>(() => [
+    { label: 'Inicio', href: '/', type: 'link' },
+    { label: 'Ambientes', href: '/#ambientes', type: 'link' },
+    { label: 'Clases', href: '/clases', type: 'link', active: true },
+    ...(user?.role_id === 1
+      ? [{ label: 'Administración', href: '/administracion', type: 'link' as const }]
+      : []),
+  ], [user]);
 
   /* Filter states */
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -53,7 +65,7 @@ export default function Clases() {
 
   return (
     <div ref={wrapperRef} className="min-h-screen overflow-hidden">
-      <Navbar solidBg />
+      <Navbar solidBg items={navItems} />
 
       {/* ── Full-height hero background ── */}
       <div className="fixed inset-0 top-0 z-0 h-dvh overflow-hidden pointer-events-none">
@@ -71,8 +83,8 @@ export default function Clases() {
       <div className="relative z-10 min-h-screen flex flex-col">
           <div className="shrink-0 h-24" />
 
-          <main ref={contentRef} className="flex-1 flex flex-col w-full items-center px-6 pb-12">
-              <div className="w-full max-w-4xl flex flex-col gap-6">
+          <main ref={contentRef} className="flex-1 flex flex-col w-full items-center px-4 pb-12">
+              <div className="w-full max-w-7xl flex flex-col gap-6">
                 
                 {/* Filter Bar */}
                 <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex flex-wrap gap-4 items-end">
