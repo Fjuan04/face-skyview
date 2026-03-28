@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login';
 import Administracion from './pages/Administracion';
+import Clases from './pages/Clases';
 import { useState } from 'react';
 import Loader from "./components/Loader";
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,6 +18,7 @@ function Router(){
         <Routes>
             <Route path="/" element={<Home startAnimation={ready}/>} />
             <Route path="/login" element={<Login />} />
+            <Route path="/clases" element={<Clases />} />
             <Route path='/administracion' element={
                 <ProtectedRoute>
                     <Administracion/>

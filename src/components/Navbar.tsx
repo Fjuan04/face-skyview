@@ -29,6 +29,7 @@ interface NavbarProps {
 const HOME_ITEMS: NavItem[] = [
   { label: 'Inicio', href: '#home', type: 'anchor' },
   { label: 'Ambientes', href: '#ambientes', type: 'anchor' },
+  { label: 'Clases', href: '/clases', type: 'link' },
 ];
 
 /* ─── Component ──────────────────────────────────────────────── */
