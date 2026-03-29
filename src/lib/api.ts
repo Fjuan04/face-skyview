@@ -31,4 +31,24 @@ export const api = {
   post: (url: string, body: unknown) => request(url, { method: 'POST', body: body instanceof FormData ? body : JSON.stringify(body) }),
   put: (url: string, body: unknown) => request(url, { method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body) }),
   delete: (url: string) => request(url, { method: 'DELETE' }),
+  download: async (endpoint: string, filename: string) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: {
+        'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      }
+    });
+    if (!res.ok) throw await res.json();
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
 }

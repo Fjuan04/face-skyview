@@ -3,7 +3,8 @@ import gsap from "gsap";
 import Navbar from "@/components/Navbar";
 import type { NavItem } from "@/components/Navbar";
 import ScheduleList from "@/components/teacher/ScheduleList";
-import { Search, Calendar as CalendarIcon, Filter, Layers } from "lucide-react";
+import ExportExcelModal from "@/components/teacher/ExportExcelModal";
+import { Search, Calendar as CalendarIcon, Filter, Layers, FileDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 /* Component  */
@@ -27,6 +28,7 @@ export default function Clases() {
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [ambientId, setAmbientId] = useState<string>("");
   const [status, setStatus] = useState<'open' | 'closed' | undefined>(undefined);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   /* Pin initial states  */
   useLayoutEffect(() => {
@@ -148,6 +150,15 @@ export default function Clases() {
                           Limpiar
                       </button>
                     )}
+
+                    {/* Export Button */}
+                    <button 
+                        onClick={() => setIsExportModalOpen(true)}
+                        className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-xl px-5 py-2.5 flex items-center gap-2 group transition-all"
+                    >
+                        <FileDown size={14} className="text-emerald-400" />
+                        <span className="text-[11px] uppercase tracking-widest font-bold text-emerald-400">Exportar</span>
+                    </button>
                 </div>
 
                 {/* Schedule List */}
@@ -159,6 +170,12 @@ export default function Clases() {
               </div>
           </main>
       </div>
+
+      <ExportExcelModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        defaultStartDate={date}
+      />
     </div>
   );
 }
