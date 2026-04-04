@@ -8,6 +8,15 @@
   scroll-behavior: smooth !important;
 }
 
+html, body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   font-family: 'jakarta', sans-serif;
 }

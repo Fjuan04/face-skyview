@@ -62,7 +62,7 @@ export default function Administracion() {
         items={[
           { label: "Inicio", href: "/", type: "link" },
           {
-            label: "Registrar docente",
+            label: "Registrar instructor",
             href: "docentes",
             type: "button",
             onClick: () => setActiveTab("docentes"),

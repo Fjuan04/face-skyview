@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api";
+import PermissionModal from "./PermissionModal";
 
 export interface Ambiente {
   id: number;
@@ -18,6 +19,7 @@ export interface Ambiente {
 export default function ListadoAmbientes() {
   const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [permissionAmbient, setPermissionAmbient] = useState<Ambiente | null>(null);
 
   useEffect(() => {
     api
@@ -117,19 +119,28 @@ export default function ListadoAmbientes() {
               {isDisponible ? "Disponible" : "Ocupado"}
             </span>
 
-            {/* Toggle button */}
-            <button
-              onClick={() => handleToggle(amb.id, amb.isOccupied)}
-              className={`
-                shrink-0 h-9 px-4
-                backdrop-blur-sm border border-white/20 rounded-[3px]
-                text-white text-xs font-plus uppercase tracking-wider
-                transition-colors
-                ${isDisponible ? "hover:bg-emerald-500/20" : "hover:bg-orange-500/20"}
-              `}
-            >
-              {isDisponible ? "Dar ingreso" : "Liberar"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPermissionAmbient(amb)}
+                className={`
+                  shrink-0 h-9 px-4
+                  backdrop-blur-sm border border-white/20 rounded-[3px]
+                  text-white/80 hover:text-white text-xs font-plus uppercase tracking-wider
+                  transition-colors hover:bg-white/10
+                `}
+              >
+                Permisos
+              </button>
+
+              {!isDisponible && (
+                <button
+                  onClick={() => handleToggle(amb.id, amb.isOccupied)}
+                  className="shrink-0 h-9 px-4 backdrop-blur-sm border border-white/20 rounded-[3px] text-white text-xs font-plus uppercase tracking-wider transition-colors hover:bg-orange-500/20"
+                >
+                  Liberar
+                </button>
+              )}
+            </div>
           </motion.li>
         )})}
 
@@ -139,6 +150,14 @@ export default function ListadoAmbientes() {
           </p>
         )}
       </ul>
+
+      {permissionAmbient && (
+        <PermissionModal 
+          ambientId={permissionAmbient.id}
+          ambientName={permissionAmbient.name}
+          onClose={() => setPermissionAmbient(null)}
+        />
+      )}
     </div>
   );
 }

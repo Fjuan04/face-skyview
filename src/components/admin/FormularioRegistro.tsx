@@ -106,7 +106,7 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
           Ingresa el documento
         </h2>
         <p className="text-white/60 text-sm font-plus mt-2">
-          Consultaremos los datos del docente automáticamente.
+          Consultaremos los datos del instructor automáticamente.
         </p>
         <div className="mt-5 h-px bg-gradient-to-r from-white/20 to-transparent" />
       </div>
@@ -158,7 +158,7 @@ function StepDocumento({ onNext }: { onNext: (info: DocenteInfo) => void }) {
         >
           {loading ? (
             <><span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> Consultando...</>
-          ) : "Consultar docente →"}
+          ) : "Consultar instructor →"}
         </motion.button>
       </form>
     </div>
@@ -354,7 +354,7 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
       onDone();
     } catch (err: any) {
       console.error("Error saving docent:", err);
-      const errorMessage = err.message || (typeof err === "string" ? err : "Error al guardar el docente. Intenta de nuevo.");
+      const errorMessage = err.message || (typeof err === "string" ? err : "Error al guardar el instructor. Intenta de nuevo.");
       setError(errorMessage);
     } finally {
       setLoading(false);

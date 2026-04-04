@@ -86,12 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function logout() {
     setLoading(true);
     try {
-      await api.post("logout", {});
+      await api.post("/logout", {});
     } finally {
       localStorage.removeItem("token");
       setToken(null);
       setUser(null);
       setLoading(false);
+      window.location.href = "/";
     }
   }
 

@@ -18,7 +18,11 @@ function Router(){
         <Routes>
             <Route path="/" element={<Home startAnimation={ready}/>} />
             <Route path="/login" element={<Login />} />
-            <Route path="/clases" element={<Clases />} />
+            <Route path="/clases" element={
+                <ProtectedRoute>
+                    <Clases />
+                </ProtectedRoute>
+            } />
             <Route path='/administracion' element={
                 <ProtectedRoute>
                     <Administracion/>
