@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate, Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 /* ─── Floating Label Input ──────────────────────────────────────── */
 interface FloatingInputProps {
@@ -77,8 +77,15 @@ function FloatingInput({
 /* Login Page  */
 function Login() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { login, loading, error } = useAuth();
+  const { login, loading, error, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

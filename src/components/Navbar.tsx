@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import ShinyText from './text/ShinyText';
 import { useTheme } from './ThemeProvider';
 import { FiSun, FiMoon } from 'react-icons/fi';
-import { User } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -36,7 +36,7 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark';
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     if (solidBg) return;
@@ -157,13 +157,23 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
           {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
         </button>
 
-        <Link
-          to="/login"
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
-          title={user ? "Mi Perfil" : "Iniciar Sesión"}
-        >
-          <User size={18} />
-        </Link>
+        {user ? (
+          <button
+            onClick={logout}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
+            title="Cerrar Sesión"
+          >
+            <LogOut size={18} />
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${btnClasses}`}
+            title="Iniciar Sesión"
+          >
+            <User size={18} />
+          </Link>
+        )}
 
         <a href="#" className="h-10 w-10 md:h-12 md:w-12 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
           <img
