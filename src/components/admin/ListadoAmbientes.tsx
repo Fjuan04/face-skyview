@@ -29,17 +29,7 @@ export default function ListadoAmbientes() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const handleToggle = async (id: number, currentOccupied: boolean) => {
-    try {
-      const newOccupiedState = !currentOccupied;
-      await api.put(`/admin/ambientes/${id}`, { isOccupied: newOccupiedState });
-      setAmbientes((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, isOccupied: newOccupiedState } : a)),
-      );
-    } catch (err) {
-      console.error("Error al actualizar ambiente", err);
-    }
-  };
+
 
   return (
     <div className="w-full max-w-2xl">
@@ -132,14 +122,7 @@ export default function ListadoAmbientes() {
                 Permisos
               </button>
 
-              {!isDisponible && (
-                <button
-                  onClick={() => handleToggle(amb.id, amb.isOccupied)}
-                  className="shrink-0 h-9 px-4 backdrop-blur-sm border border-white/20 rounded-[3px] text-white text-xs font-plus uppercase tracking-wider transition-colors hover:bg-orange-500/20"
-                >
-                  Liberar
-                </button>
-              )}
+
             </div>
           </motion.li>
         )})}
