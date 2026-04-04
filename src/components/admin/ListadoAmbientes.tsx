@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api";
 import PermissionModal from "./PermissionModal";
+import { Search, X } from "lucide-react";
 
 export interface Ambiente {
   id: number;
@@ -13,12 +14,15 @@ export interface Ambiente {
   ficha?: string;
   clase?: string;
   horario?: string;
+  extraordinary?: boolean;
+  extraordinary_message?: string;
 }
 
 /* Component  */
 export default function ListadoAmbientes() {
   const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [permissionAmbient, setPermissionAmbient] = useState<Ambiente | null>(null);
 
   useEffect(() => {
@@ -28,6 +32,10 @@ export default function ListadoAmbientes() {
       .catch(console.error)
       .finally(() => setIsLoading(false));
   }, []);
+ 
+  const filteredAmbientes = ambientes.filter((amb) =>
+    amb.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
 
 
@@ -44,7 +52,30 @@ export default function ListadoAmbientes() {
         >
           Ambientes
         </h2>
-        <div className="mt-4 h-px bg-white/10 w-full" />
+
+        {/* Search Bar */}
+        <div className="mt-6 relative group">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <Search size={16} className="text-white/20 group-focus-within:text-emerald-400 transition-colors" />
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar ambiente por nombre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+          />
+          {searchTerm && (
+            <button 
+              onClick={() => setSearchTerm("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/20 hover:text-white/60 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        <div className="mt-6 h-px bg-white/10 w-full" />
       </div>
 
       {/* List */}
@@ -52,7 +83,7 @@ export default function ListadoAmbientes() {
         {isLoading && (
           <p className="text-white/40 text-sm font-plus text-center py-10">Cargando...</p>
         )}
-        {!isLoading && ambientes.map((amb, i) => {
+        {!isLoading && filteredAmbientes.map((amb, i) => {
           const isDisponible = !amb.isOccupied;
           return (
           <motion.li
@@ -78,12 +109,12 @@ export default function ListadoAmbientes() {
                   {amb.ficha && (
                     <p><span className="text-white/30">Ficha:</span> <span className="text-white/80">{amb.ficha}</span></p>
                   )}
-                  {amb.clase && (
+                  {!amb.extraordinary && amb.clase && (
                     <p className="truncate" title={amb.clase}>
                       <span className="text-white/30">Clase:</span> <span className="text-white/80">{amb.clase}</span>
                     </p>
                   )}
-                  {amb.docente && (
+                  {!amb.extraordinary && amb.docente && (
                     <p><span className="text-white/30">Docente:</span> <span className="text-white/80">{amb.docente}</span></p>
                   )}
                   {amb.horario && (
@@ -94,6 +125,19 @@ export default function ListadoAmbientes() {
                 <span className="text-white/40 text-xs font-mono">
                   {amb.capacity > 0 ? `${amb.capacity} personas de capacidad` : 'Capacidad sin definir'}
                 </span>
+              )}
+
+              {/* Extraordinary Alert for Admin */}
+              {amb.extraordinary && amb.extraordinary_message && (
+                <div className="mt-2.5 p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-[3px] flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 shadow-[0_0_5px_rgba(99,102,241,0.5)]"></div>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] uppercase tracking-widest text-indigo-400 font-bold mb-0.5">Aviso importante</span>
+                    <p className="text-[10px] text-indigo-300 font-mono leading-tight">
+                      {amb.extraordinary_message}
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -127,9 +171,9 @@ export default function ListadoAmbientes() {
           </motion.li>
         )})}
 
-        {!isLoading && ambientes.length === 0 && (
-          <p className="text-white/30 text-sm font-plus text-center py-10">
-            No hay ambientes registrados
+        {!isLoading && filteredAmbientes.length === 0 && (
+          <p className="text-white/30 text-sm font-plus text-center py-10 italic">
+            {searchTerm ? `No se encontraron ambientes que coincidan con "${searchTerm}"` : 'No hay ambientes registrados'}
           </p>
         )}
       </ul>

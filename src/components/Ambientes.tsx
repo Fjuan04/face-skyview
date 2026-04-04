@@ -16,6 +16,8 @@ interface Ambient {
   ficha?: string;
   clase?: string;
   horario?: string;
+  extraordinary?: boolean;
+  extraordinary_message?: string;
 }
 
 // Ancho de referencia fijo del mapa. DEBE ser el mismo en MapConfigurator.tsx
@@ -146,17 +148,21 @@ export default function Ambientes() {
                                                     <span className="text-foreground text-sm font-medium">{ambiente.horario}</span>
                                                 </div>
                                             )}
-                                            {ambiente.docente && (
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Docente</span>
-                                                    <span className="text-foreground text-sm font-medium leading-snug text-wrap">{ambiente.docente}</span>
-                                                </div>
-                                            )}
-                                            {ambiente.clase && (
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Clase</span>
-                                                    <span className="text-foreground text-sm font-medium leading-snug text-wrap">{ambiente.clase}</span>
-                                                </div>
+                                            {!ambiente.extraordinary && (
+                                                <>
+                                                    {ambiente.docente && (
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Instructor</span>
+                                                            <span className="text-foreground text-sm font-medium leading-snug text-wrap">{ambiente.docente}</span>
+                                                        </div>
+                                                    )}
+                                                    {ambiente.clase && (
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Clase</span>
+                                                            <span className="text-foreground text-sm font-medium leading-snug text-wrap">{ambiente.clase}</span>
+                                                        </div>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     ) : (
@@ -172,6 +178,21 @@ export default function Ambientes() {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Extraordinary Message */}
+                                {ambiente.extraordinary && ambiente.extraordinary_message && (
+                                    <div className="mt-4 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-start gap-2.5 animate-pulse-subtle">
+                                        <div className="shrink-0 mt-0.5">
+                                            <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                                        </div>
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[10px] uppercase tracking-widest text-indigo-400 font-bold">Aviso importante</span>
+                                            <p className="text-foreground/90 text-xs font-medium leading-relaxed">
+                                                {ambiente.extraordinary_message}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Triángulo apuntando hacia abajo */}
                                 <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-background border-b border-r border-border rotate-45"></div>
