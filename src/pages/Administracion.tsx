@@ -5,11 +5,12 @@ import Navbar from "@/components/Navbar";
 import FormularioRegistro from "@/components/admin/FormularioRegistro";
 import ListadoAmbientes from "@/components/admin/ListadoAmbientes";
 import MapConfigurator from "@/components/admin/MapConfigurator";
+import GestionFichas from "@/components/admin/GestionFichas";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* Tabs */
-type Tab = "docentes" | "ambientes" | "mapa";
+type Tab = "docentes" | "ambientes" | "mapa" | "fichas";
 
 /* Component  */
 export default function Administracion() {
@@ -62,11 +63,18 @@ export default function Administracion() {
         items={[
           { label: "Inicio", href: "/", type: "link" },
           {
-            label: "Registrar instructor",
+            label: "Instructores",
             href: "docentes",
             type: "button",
             onClick: () => setActiveTab("docentes"),
             active: activeTab === "docentes",
+          },
+          {
+            label: "Fichas",
+            href: "fichas",
+            type: "button",
+            onClick: () => setActiveTab("fichas"),
+            active: activeTab === "fichas",
           },
           {
             label: "Ambientes",
@@ -109,6 +117,7 @@ export default function Administracion() {
           {activeTab === "docentes" && <FormularioRegistro />}
           {activeTab === "ambientes" && <ListadoAmbientes />}
           {activeTab === "mapa" && <MapConfigurator />}
+          {activeTab === "fichas" && <GestionFichas />}
         </main>
       </div>
     </div>
