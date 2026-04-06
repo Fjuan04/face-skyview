@@ -4,9 +4,10 @@ import { api } from "@/lib/api";
 /* Types  */
 interface User {
   id: number;
-  username: string;
+  fullname: string;
   email: string;
   role_id: number;
+  must_change_password?: boolean;
 }
 
 export interface AuthContextType {
@@ -17,6 +18,8 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
+  mustChangePassword: boolean;
+  setMustChangePassword: (val: boolean) => void;
 }
 
 /* context */
@@ -28,9 +31,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );
-  const [loading, setLoading] = useState(false);
+  const [mustChangePassword, setMustChangePasswordState] = useState<boolean>(
+    localStorage.getItem("must_change_password") === "true"
+  );
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const BASE_URL = import.meta.env.VITE_API_URL;
+
+  const setMustChangePassword = (val: boolean) => {
+    setMustChangePasswordState(val);
+    if (val) {
+      localStorage.setItem("must_change_password", "true");
+    } else {
+      localStorage.removeItem("must_change_password");
+    }
+  };
 
   useEffect(() => {
     const validateSession = async () => {
@@ -54,11 +69,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const data = await res.json();
-
         setUser(data);
+        
+        // Note: As specified, /user does not return must_change_password.
+        // We rely on the value stored in localStorage set during login.
       } catch (error) {
         localStorage.removeItem("token");
+        localStorage.removeItem("must_change_password");
+        setToken(null);
         setUser(null);
+        setMustChangePasswordState(false);
       } finally {
         setLoading(false);
       }
@@ -72,9 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const data = await api.post("/login", { email, password });
+      
       localStorage.setItem("token", data.token);
       setToken(data.token);
       setUser(data.user);
+
+      const mustChange = data.must_change_password || data.user?.must_change_password || false;
+      setMustChangePassword(mustChange);
+
     } catch (err: any) {
       setError(err?.message ?? "Error al iniciar sesión");
       throw err;
@@ -89,8 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await api.post("/logout", {});
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("must_change_password");
       setToken(null);
       setUser(null);
+      setMustChangePasswordState(false);
       setLoading(false);
       window.location.href = "/";
     }
@@ -106,6 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated: !!token,
+        mustChangePassword,
+        setMustChangePassword,
       }}
     >
       {children}

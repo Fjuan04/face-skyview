@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import Login from './pages/Login';
 import Administracion from './pages/Administracion';
 import Clases from './pages/Clases';
+import ChangePassword from '@/pages/ChangePassword';
 import { useState } from 'react';
 import Loader from "./components/Loader";
 import ProtectedRoute from './components/ProtectedRoute';
@@ -16,7 +17,12 @@ function Router(){
 
     return (
         <Routes>
-            <Route path="/" element={<Home startAnimation={ready}/>} />
+            {/* Wrap Home in ProtectedRoute to ensure mandatory password change applies to / */}
+            <Route path="/" element={
+                 <ProtectedRoute>
+                    <Home startAnimation={ready}/>
+                 </ProtectedRoute>
+            } />
             <Route path="/login" element={<Login />} />
             <Route path="/clases" element={
                 <ProtectedRoute>
@@ -26,6 +32,11 @@ function Router(){
             <Route path='/administracion' element={
                 <ProtectedRoute>
                     <Administracion/>
+                </ProtectedRoute>
+            }/>
+            <Route path='/cambiar-contrasena' element={
+                <ProtectedRoute>
+                    <ChangePassword />
                 </ProtectedRoute>
             }/>
         </Routes>

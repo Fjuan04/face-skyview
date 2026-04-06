@@ -36,7 +36,7 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark';
-  const { user, logout } = useAuth();
+  const { user, logout, mustChangePassword } = useAuth();
 
   useEffect(() => {
     if (solidBg) return;
@@ -85,7 +85,7 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
       : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-900')
     : 'bg-white/10 hover:bg-white/20 border-white/20 text-white';
 
-  const navItems = items ?? [
+  const navItems = mustChangePassword ? [] : (items ?? [
     ...HOME_ITEMS,
     // Añade el link de clases si el usuario está logueado (cualquier rol)
     ...(user
@@ -95,7 +95,7 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
     ...(user?.role_id === 1
       ? [{ label: 'Administración', href: '/administracion', type: 'link' as const }]
       : []),
-  ];
+  ]);
 
   const itemClass = (active?: boolean) => `
     relative hover:opacity-60 flex flex-col items-center transition-all
