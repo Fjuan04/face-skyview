@@ -21,6 +21,7 @@ interface User {
   id: number;
   fullname: string;
   document: string;
+  role_id: number;
 }
 
 export default function PermissionModal({ ambientId, ambientName, onClose }: PermissionModalProps) {
@@ -64,17 +65,17 @@ export default function PermissionModal({ ambientId, ambientName, onClose }: Per
     fetchSchedules();
   }, [date, ambientId]);
 
-  // Fetch all users once
+  // Fetch all instructors once
   useEffect(() => {
     const fetchUsers = async () => {
       setLoadingUsers(true);
       try {
-        const res = await api.get("/users");
+        const res = await api.get("/management/teachers");
         // Adapt depending on backend response struct. Assume array or { data: [] }
         if (Array.isArray(res)) setUsers(res);
         else if (res.data && Array.isArray(res.data)) setUsers(res.data);
       } catch (err) {
-        console.error("Error fetching users:", err);
+        console.error("Error fetching teachers:", err);
       } finally {
         setLoadingUsers(false);
       }
@@ -100,6 +101,9 @@ export default function PermissionModal({ ambientId, ambientName, onClose }: Per
   };
 
   const filteredUsers = users.filter((u) => {
+    // Solo mostrar instructores (rol 2)
+    if (u.role_id !== 2) return false;
+
     const searchLow = searchUser.toLowerCase();
     return (
       (u.fullname && u.fullname.toLowerCase().includes(searchLow)) ||
