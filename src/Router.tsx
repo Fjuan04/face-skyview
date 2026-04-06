@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import Login from './pages/Login';
 import Administracion from './pages/Administracion';
 import Clases from './pages/Clases';
+import MisFichas from './pages/MisFichas';
 import ChangePassword from '@/pages/ChangePassword';
 import { useState } from 'react';
 import Loader from "./components/Loader";
@@ -32,6 +33,11 @@ function Router(){
             <Route path='/administracion' element={
                 <ProtectedRoute>
                     <Administracion/>
+                </ProtectedRoute>
+            }/>
+            <Route path='/mis-fichas' element={
+                <ProtectedRoute>
+                    <MisFichas />
                 </ProtectedRoute>
             }/>
             <Route path='/cambiar-contrasena' element={

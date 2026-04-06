@@ -354,8 +354,7 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
       onDone();
     } catch (err: any) {
       console.error("Error saving docent:", err);
-      const errorMessage = err.message || (typeof err === "string" ? err : "Error al guardar el instructor. Intenta de nuevo.");
-      setError(errorMessage);
+      setError(err.message || "Error al guardar el instructor.");
     } finally {
       setLoading(false);
     }
@@ -366,32 +365,28 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
       {/* Header */}
       <div>
         <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/50 mb-2">Paso 3</p>
-        <h2 className="font-plus text-white font-bold tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 42px)", lineHeight: 1.1 }}>
+        <h2 className="font-plus text-white font-bold tracking-tight text-2xl md:text-3xl">
           Foto del docente
         </h2>
-        <p className="text-white/60 text-sm font-plus mt-2">
-          Opcional — sube o toma una foto de perfil.
+        <p className="text-white/60 text-sm font-plus mt-1">
+          Opcional — toma o sube una foto de perfil.
         </p>
         <div className="mt-5 h-px bg-gradient-to-r from-white/20 to-transparent" />
       </div>
 
-      {/* ─── Single viewfinder container, always in DOM ─── */}
       <motion.div
         initial={false}
         animate={{ height: mode === "idle" ? 0 : "auto", opacity: mode === "idle" ? 0 : 1 }}
         style={{ overflow: "hidden" }}
         className="flex flex-col gap-4"
       >
-        {/* Viewfinder Frame */}
         <div className="relative rounded-[12px] overflow-hidden border border-white/15 bg-black w-full aspect-video shadow-2xl">
-          {/* Live video stream (mirrored) */}
           <video
             ref={videoRef}
             autoPlay playsInline muted
             className="absolute inset-0 w-full h-full object-cover"
             style={{ transform: "scaleX(-1)", display: mode === "live" ? "block" : "none" }}
           />
-          {/* Canvas: frozen camera shot OR uploaded file preview */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full"
@@ -401,8 +396,6 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
               transform: mode === "frozen" ? "scaleX(-1)" : "none",
             }}
           />
-
-          {/* Live scanning indicator effect */}
           {mode === "live" && (
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] border border-white/20 rounded-[24px]" />
@@ -414,64 +407,32 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
           )}
         </div>
 
-        {/* Controls placed BELOW the viewfinder */}
         <div className="flex justify-center gap-3">
           {mode === "live" && (
-            <AnimatePresence mode="popLayout">
-              <motion.button
-                key="cancel"
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                onClick={cancelCamera}
-                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white border border-white/10 text-sm font-plus transition-colors"
-              >
+            <>
+              <button onClick={cancelCamera} className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white border border-white/10 text-sm font-plus transition-colors">
                 Cancelar
-              </motion.button>
-              <motion.button
-                key="capture"
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={capturePhoto}
-                className="px-8 py-2.5 bg-white text-black font-bold rounded-full text-sm hover:bg-gray-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all"
-              >
-                <Camera size={18} /> Capturar foto
-              </motion.button>
-            </AnimatePresence>
+              </button>
+              <button onClick={capturePhoto} className="px-8 py-2.5 bg-white text-black font-bold rounded-full text-sm hover:bg-gray-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all">
+                <Camera size={18} /> Capturar
+              </button>
+            </>
           )}
-
           {(mode === "frozen" || mode === "file") && (
-            <AnimatePresence mode="popLayout">
-              <motion.button
-                key="retake"
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                onClick={retake}
-                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white border border-white/10 text-sm font-plus transition-colors"
-              >
-                {mode === "frozen" ? "Repetir foto" : "Eliminar archivo"}
-              </motion.button>
-              <motion.div
-                key="status"
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                className="px-6 py-2.5 bg-emerald-500/10 border border-emerald-400/20 text-emerald-400 rounded-full text-sm font-plus flex items-center gap-2"
-              >
-                <Check size={16} /> {mode === "frozen" ? "Foto capturada" : "Archivo seleccionado"}
-              </motion.div>
-            </AnimatePresence>
+            <button onClick={retake} className="px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white border border-white/10 text-sm font-plus transition-colors">
+              {mode === "frozen" ? "Repetir foto" : "Eliminar archivo"}
+            </button>
           )}
         </div>
       </motion.div>
 
-      {/* Idle chooser */}
       {mode === "idle" && (
         <div className="grid grid-cols-2 gap-4">
-          <button onClick={startCamera}
-            className="group border border-white/10 bg-black/40 rounded-[6px] hover:border-white/30 hover:bg-black/60 transition-all h-36 flex flex-col items-center justify-center gap-3"
-          >
+          <button onClick={startCamera} className="group border border-white/10 bg-black/40 rounded-[6px] hover:border-white/30 hover:bg-black/60 transition-all h-36 flex flex-col items-center justify-center gap-3">
             <Camera size={30} className="text-white/50 group-hover:text-white transition-colors" strokeWidth={1.5} />
             <span className="text-white/50 text-[11px] font-mono uppercase tracking-widest group-hover:text-white transition-colors">Usar cámara</span>
           </button>
-          <div onClick={() => inputRef.current?.click()}
-            className="group cursor-pointer border border-white/10 bg-black/40 rounded-[6px] hover:border-white/30 hover:bg-black/60 transition-all h-36 flex flex-col items-center justify-center gap-3"
-          >
+          <div onClick={() => inputRef.current?.click()} className="group cursor-pointer border border-white/10 bg-black/40 rounded-[6px] hover:border-white/30 hover:bg-black/60 transition-all h-36 flex flex-col items-center justify-center gap-3">
             <Upload size={30} className="text-white/50 group-hover:text-white transition-colors" strokeWidth={1.5} />
             <span className="text-white/50 text-[11px] font-mono uppercase tracking-widest group-hover:text-white transition-colors">Subir archivo</span>
           </div>
@@ -480,16 +441,11 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
 
       <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
 
-
-      {mode === "idle" && (
-        <p className="text-center text-white/25 text-[11px] font-mono uppercase tracking-widest">— sin foto seleccionada —</p>
-      )}
-
       <AnimatePresence>
         {error && (
-          <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="text-red-300 text-sm font-plus border border-red-500/30 bg-red-500/10 rounded-[6px] px-4 py-3"
-          >{error}</motion.p>
+          <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-red-300 text-sm font-plus border border-red-500/30 bg-red-500/10 rounded-[6px] px-4 py-3">
+            {error}
+          </motion.p>
         )}
       </AnimatePresence>
 
@@ -502,7 +458,7 @@ function StepFoto({ info, onBack, onDone }: { info: DocenteInfo; onBack: () => v
         <motion.button
           onClick={handleSubmit} disabled={loading}
           whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-          className="h-[56px] flex-[2] bg-white text-black rounded-[6px] shadow-lg shadow-white/10 text-[14px] font-plus font-bold tracking-[0.15em] uppercase hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="h-[56px] flex-[2] bg-white text-black rounded-[6px] shadow-lg shadow-white/10 text-[14px] font-plus font-bold tracking-[0.15em] uppercase hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {loading
             ? <><span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> Guardando...</>

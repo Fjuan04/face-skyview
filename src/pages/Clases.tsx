@@ -32,6 +32,9 @@ export default function Clases() {
     ...(user?.role_id === 1
       ? [{ label: 'Administración', href: '/administracion', type: 'link' as const }]
       : []),
+    ...(user?.role_id === 2
+      ? [{ label: "Fichas", href: "/mis-fichas", type: "link" as const }]
+      : []),
   ], [user]);
 
   /* Filter states */

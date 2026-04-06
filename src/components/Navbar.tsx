@@ -85,17 +85,24 @@ export default function Navbar({ solidBg = false, items }: NavbarProps) {
       : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-900')
     : 'bg-white/10 hover:bg-white/20 border-white/20 text-white';
 
-  const navItems = mustChangePassword ? [] : (items ?? [
-    ...HOME_ITEMS,
-    // Añade el link de clases si el usuario está logueado (cualquier rol)
-    ...(user
-      ? [{ label: 'Clases', href: '/clases', type: 'link' as const }]
-      : []),
-    // Añade el link de admin si el usuario es admin
-    ...(user?.role_id === 1
-      ? [{ label: 'Administración', href: '/administracion', type: 'link' as const }]
-      : []),
-  ]);
+  // Enlaces base del portal según rol
+  const portalLinks: NavItem[] = mustChangePassword ? [] : [
+    ...(user ? [{ label: 'Clases', href: '/clases', type: 'link' as const }] : []),
+    ...(user?.role_id === 1 ? [{ label: 'Administración', href: '/administracion', type: 'link' as const }] : []),
+    ...(user?.role_id === 2 ? [{ label: 'Fichas', href: '/mis-fichas', type: 'link' as const }] : []),
+  ];
+
+  // Si no hay items, usamos HOME_ITEMS + portalLinks
+  // Si HAY items, los fusionamos, priorizando el estado (active) del item pasado por prop
+  const baseItems = items || HOME_ITEMS;
+  
+  // Fusionar para evitar duplicados, dando prioridad a los items pasados via prop
+  const navItems = [...baseItems];
+  portalLinks.forEach(p => {
+    if (!navItems.find(n => n.label === p.label)) {
+      navItems.push(p);
+    }
+  });
 
   const itemClass = (active?: boolean) => `
     relative hover:opacity-60 flex flex-col items-center transition-all
