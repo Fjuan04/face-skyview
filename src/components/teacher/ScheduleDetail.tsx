@@ -77,6 +77,23 @@ export default function ScheduleDetail({ scheduleId, onClose }: ScheduleDetailPr
     fetchDetail();
   }, [scheduleId]);
 
+  const handleMarkBreak = async () => {
+    if (!data || data.schedule_info.break_time) return;
+
+    try {
+      await api.post(`/ambients/${data.schedule_info.ambient_id}/break`, {});
+      // Re-fetch detail to get updated break_time and potentially start_break/end_break
+      const response = await api.get(`/schedules/${scheduleId}`) as { success: boolean, data: DetailedSchedule };
+      if (response.success) {
+        setData(response.data);
+      }
+    } catch (err) {
+      console.error("Error al marcar descanso:", err);
+      // alert no es lo mas premium, pero es efectivo para este caso de error
+      alert("No se pudo marcar el descanso.");
+    }
+  };
+
   const formatTime = (time: string | null) => {
     if (!time) return "--:--";
     const cleanTime = time.includes(" ") ? time.replace(" ", "T") : time;
@@ -269,10 +286,28 @@ export default function ScheduleDetail({ scheduleId, onClose }: ScheduleDetailPr
                               {calculateDuration(data.schedule_info.start_break, data.schedule_info.end_break)}
                             </span>
                           </div>
+                          
+                          <button
+                            disabled
+                            className="col-span-2 mt-2 w-full flex items-center justify-center gap-2 px-6 py-3 bg-orange-500/10 text-orange-400/50 border border-orange-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest cursor-not-allowed"
+                          >
+                            <Coffee size={14} />
+                            Descanso Registrado
+                          </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 py-4 justify-center">
+                        <div className="flex flex-col items-center gap-4 py-2 justify-center">
                           <p className="text-white/20 text-[9px] font-bold uppercase tracking-widest italic">Sin reporte de descanso</p>
+                          
+                          {data.tracking.is_opened && !data.tracking.is_closed && (
+                            <button
+                              onClick={handleMarkBreak}
+                              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-orange-500/20 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-orange-500/5 hover:shadow-orange-500/20"
+                            >
+                              <Coffee size={14} />
+                              Marcar Descanso Ahora
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

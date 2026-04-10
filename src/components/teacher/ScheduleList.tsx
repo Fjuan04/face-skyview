@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { Calendar, Clock, MapPin, Hash, BookOpen, Sun, Sunset, Moon } from "lucide-react";
+import { Calendar, Clock, MapPin, Hash, BookOpen, Sun, Sunset, Moon, Coffee } from "lucide-react";
 import ScheduleDetail from "./ScheduleDetail";
 
 export interface ScheduleItem {
@@ -172,6 +172,22 @@ export default function ScheduleList({ date, ambientId, status }: ScheduleListPr
 
   const toggleSection = (j: Jornada) =>
     setOpenSections((prev) => ({ ...prev, [j]: !prev[j] }));
+
+  const handleMarkBreak = async (e: React.MouseEvent, schedule: ScheduleItem) => {
+    e.stopPropagation(); // Evitar abrir el detalle
+    if (schedule.break_time) return;
+
+    try {
+      const response = await api.post(`/ambients/${schedule.ambient_id}/break`, {});
+      // Actualizar estado local para reflejar el cambio inmediatamente
+      setSchedules(prev => prev.map(s => 
+        s.id === schedule.id ? { ...s, break_time: true } : s
+      ));
+    } catch (error) {
+      console.error("Error al marcar descanso:", error);
+      alert("No se pudo marcar el descanso. Intente de nuevo.");
+    }
+  };
 
   /* Running card index for staggered animations across groups */
   let globalIndex = 0;
@@ -348,6 +364,25 @@ export default function ScheduleList({ date, ambientId, status }: ScheduleListPr
                                     </span>
                                   )}
                                 </div>
+                                
+                                {/* Quick Actions */}
+                                {item.open_by && !item.closed_by && (
+                                  <div className="mt-4 pt-4 border-t border-white/5 flex justify-end">
+                                    <button
+                                      onClick={(e) => handleMarkBreak(e, item)}
+                                      disabled={item.break_time}
+                                      className={`
+                                        flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                                        ${item.break_time 
+                                          ? 'bg-orange-500/10 text-orange-400/50 border border-orange-500/20 cursor-not-allowed' 
+                                          : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white border border-orange-500/30 shadow-lg shadow-orange-500/10 active:scale-95'}
+                                      `}
+                                    >
+                                      <Coffee size={12} />
+                                      {item.break_time ? "Descanso Registrado" : "Marcar Descanso"}
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </motion.div>
                           );

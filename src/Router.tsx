@@ -20,9 +20,10 @@ function Router(){
         <Routes>
             {/* Wrap Home in ProtectedRoute to ensure mandatory password change applies to / */}
             <Route path="/" element={
-                 <ProtectedRoute>
+                <ProtectedRoute>
                     <Home startAnimation={ready}/>
-                 </ProtectedRoute>
+                </ProtectedRoute>
+                
             } />
             <Route path="/login" element={<Login />} />
             <Route path="/clases" element={
