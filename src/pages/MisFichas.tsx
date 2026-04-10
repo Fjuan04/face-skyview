@@ -19,6 +19,7 @@ import {
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import PhotoCaptureModal from "@/components/shared/PhotoCaptureModal";
+import ExportAttendanceModal from "@/components/teacher/ExportAttendanceModal";
 
 /* ─── Types ──────────────────────────────────────────────────── */
 interface Group {
@@ -67,6 +68,7 @@ export default function MisFichas() {
   });
   const [reportData, setReportData] = useState<{ columns: string[], rows: { nombre: string, sessions: number[] }[] } | null>(null);
   const [loadingReport, setLoadingReport] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Initial animations
   useLayoutEffect(() => {
@@ -460,7 +462,10 @@ export default function MisFichas() {
                                         <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">
                                             Mostrando {reportData.rows.length} registros • {reportData.columns.length - 1} sesiones
                                         </p>
-                                        <button className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors uppercase tracking-widest">
+                                        <button 
+                                            onClick={() => setIsExportModalOpen(true)}
+                                            className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors uppercase tracking-widest"
+                                        >
                                             <Download size={14} /> Descargar reporte
                                         </button>
                                     </div>
@@ -489,6 +494,14 @@ export default function MisFichas() {
           />
         )}
       </AnimatePresence>
+
+      <ExportAttendanceModal 
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        groupId={selectedGroupId || 0}
+        defaultStartDate={startDate}
+        defaultEndDate={endDate}
+      />
     </div>
   );
 }
