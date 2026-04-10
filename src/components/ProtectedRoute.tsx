@@ -3,9 +3,10 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface Props {
     children: React.ReactNode;
+    allowGuest?: boolean;
 }
 
-const ProtectedRoute = ({ children }: Props) => {
+const ProtectedRoute = ({ children, allowGuest = false }: Props) => {
     const { isAuthenticated, loading, mustChangePassword } = useAuth();
     const location = useLocation();
 
@@ -14,6 +15,7 @@ const ProtectedRoute = ({ children }: Props) => {
     }
 
     if (!isAuthenticated) {
+        if (allowGuest) return <>{children}</>;
         return <Navigate to="/login" replace />;
     }
 

@@ -6,11 +6,12 @@ import FormularioRegistro from "@/components/admin/FormularioRegistro";
 import ListadoAmbientes from "@/components/admin/ListadoAmbientes";
 import MapConfigurator from "@/components/admin/MapConfigurator";
 import GestionFichas from "@/components/admin/GestionFichas";
+import GestionUsuarios from "@/components/admin/GestionUsuarios";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /* Tabs */
-type Tab = "docentes" | "ambientes" | "mapa" | "fichas";
+type Tab = "usuarios" | "ambientes" | "mapa" | "fichas";
 
 /* Component  */
 export default function Administracion() {
@@ -19,7 +20,7 @@ export default function Administracion() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const [activeTab, setActiveTab] = useState<Tab>("docentes");
+  const [activeTab, setActiveTab] = useState<Tab>("usuarios");
 
   /* Pin initial states  */
   useLayoutEffect(() => {
@@ -63,11 +64,11 @@ export default function Administracion() {
         items={[
           { label: "Inicio", href: "/", type: "link" },
           {
-            label: "Instructores",
-            href: "docentes",
+            label: "Usuarios",
+            href: "usuarios",
             type: "button",
-            onClick: () => setActiveTab("docentes"),
-            active: activeTab === "docentes",
+            onClick: () => setActiveTab("usuarios"),
+            active: activeTab === "usuarios",
           },
           {
             label: "Fichas",
@@ -114,7 +115,7 @@ export default function Administracion() {
         <main className={`flex-1 flex flex-col w-full ${activeTab === 'mapa' ? '' : 'items-center px-6 justify-center'}`}>
           
           {/* Tab content */}
-          {activeTab === "docentes" && <FormularioRegistro />}
+          {activeTab === "usuarios" && <GestionUsuarios />}
           {activeTab === "ambientes" && <ListadoAmbientes />}
           {activeTab === "mapa" && <MapConfigurator />}
           {activeTab === "fichas" && <GestionFichas />}
