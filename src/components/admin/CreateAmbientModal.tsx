@@ -14,7 +14,7 @@ interface CronodeAmbient {
 }
 
 export default function CreateAmbientModal({ onClose, onSuccess }: CreateAmbientModalProps) {
-  const [ambients, setAmbients] = useState<CronodeAmbient[]>([]);
+  const [ambientes, setAmbientes] = useState<CronodeAmbient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAmbientId, setSelectedAmbientId] = useState<number | null>(null);
@@ -32,9 +32,9 @@ export default function CreateAmbientModal({ onClose, onSuccess }: CreateAmbient
         const data = await api.get("/ambients/cronode");
         // Check if data is array or has a data property
         if (Array.isArray(data)) {
-          setAmbients(data);
+          setAmbientes(data);
         } else if (data && Array.isArray(data.data)) {
-          setAmbients(data.data);
+          setAmbientes(data.data);
         }
       } catch (err: any) {
         console.error("Error fetching cronode ambients:", err);
@@ -49,7 +49,7 @@ export default function CreateAmbientModal({ onClose, onSuccess }: CreateAmbient
   const handleSubmit = async () => {
     if (!selectedAmbientId || !ipAddress) return;
     
-    const selectedAmbient = ambients.find(a => a.id === selectedAmbientId);
+    const selectedAmbient = ambientes.find(a => a.id === selectedAmbientId);
     if (!selectedAmbient) return;
 
     setIsSubmitting(true);
@@ -69,7 +69,7 @@ export default function CreateAmbientModal({ onClose, onSuccess }: CreateAmbient
     }
   };
 
-  const filteredAmbients = ambients.filter((amb) =>
+  const filteredAmbients = ambientes.filter((amb) =>
     amb.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

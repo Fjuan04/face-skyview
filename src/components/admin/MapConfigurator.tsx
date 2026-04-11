@@ -27,7 +27,8 @@ export default function MapConfigurator() {
         try {
             setIsLoading(true);
             const data = await api.get('/ambients');
-            setAmbientes(data);
+            // New structure: { stats: ..., ambients: [] }
+            setAmbientes(data.ambients || []);
         } catch (err: unknown) {
             console.error(err);
             setErrorMsg("Error al obtener los ambientes");

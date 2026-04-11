@@ -31,7 +31,10 @@ export default function ListadoAmbientes() {
     setIsLoading(true);
     api
       .get("/ambients")
-      .then((data) => setAmbientes(data as Ambiente[]))
+      .then((data) => {
+        // New structure: { stats: ..., ambients: [] }
+        setAmbientes((data.ambients || []) as Ambiente[]);
+      })
       .catch(console.error)
       .finally(() => setIsLoading(false));
   };

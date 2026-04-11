@@ -50,7 +50,9 @@ export default function Clases() {
   useEffect(() => {
     api.get("/ambients")
       .then((data: any) => {
-        const list: Ambiente[] = Array.isArray(data) ? data : (data?.data ?? []);
+        // Handle new structure: { stats: ..., ambients: [] } 
+        // fallback to data.data or data itself if it's an array
+        const list: Ambiente[] = data?.ambients || (Array.isArray(data) ? data : (data?.data ?? []));
         setAmbientes(list);
       })
       .catch(console.error);

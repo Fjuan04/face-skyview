@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
+import { Users, UserCheck } from 'lucide-react';
 
 interface Ambient {
   id: number;
@@ -20,11 +21,17 @@ interface Ambient {
   extraordinary_message?: string;
 }
 
+interface Stats {
+    tentative: number;
+    present: number;
+}
+
 // Ancho de referencia fijo del mapa. DEBE ser el mismo en MapConfigurator.tsx
 const MAP_MIN_WIDTH = 1400; // px
 
 export default function Ambientes() {
     const [ambientes, setAmbientes] = useState<Ambient[]>([]);
+    const [stats, setStats] = useState<Stats | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [activeAmbientId, setActiveAmbientId] = useState<number | null>(null);
@@ -35,7 +42,11 @@ export default function Ambientes() {
                 setIsLoading(true);
                 setError(null);
                 const data = await api.get('/ambients');
-                setAmbientes(data);
+                // New response structure: { stats: ..., ambients: [] }
+                setAmbientes(data.ambients || []);
+                if (data.stats) {
+                    setStats(data.stats);
+                }
             } catch (err: unknown) {
                 console.error("Error fetching ambients:", err);
                 setError("Ocurrió un error al cargar los ambientes.");
@@ -69,6 +80,23 @@ export default function Ambientes() {
 
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-white/10 dark:bg-black/40 pointer-events-none"></div>
+
+                {/* Statistics Card (Compact & Top-Right) */}
+                {!isLoading && !error && stats && (
+                    <div className="absolute top-28 right-8 z-30 pointer-events-none">
+                        <div className="bg-background/30 dark:bg-black/20 backdrop-blur-md border border-white/10 p-3 rounded-2xl shadow-xl flex flex-col gap-2 min-w-[160px] pointer-events-auto">
+                            <div className="flex items-center justify-between gap-6 px-1">
+                                <span className="text-[9px] uppercase tracking-wider text-muted-foreground/80 font-bold whitespace-nowrap">Tentativos</span>
+                                <span className="text-sm font-black text-foreground font-plus tabular-nums whitespace-nowrap">{stats.tentative}</span>
+                            </div>
+                            <div className="h-px bg-white/5 mx-1"></div>
+                            <div className="flex items-center justify-between gap-6 px-1">
+                                <span className="text-[9px] uppercase tracking-wider text-primary/80 font-bold whitespace-nowrap">Presentes</span>
+                                <span className="text-sm font-black text-primary font-plus tabular-nums whitespace-nowrap">{stats.present}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Estado de carga */}
                 {isLoading && (
@@ -200,10 +228,10 @@ export default function Ambientes() {
                                 )}
 
                                 {/* Triángulo apuntando hacia el punto */}
-                                <div className={`absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-background border rotate-45 
+                                <div className={`absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-background/95 border rotate-45 border-border
                                     ${isTopHalf 
-                                        ? '-top-2.5 border-t border-l' 
-                                        : '-bottom-2.5 border-b border-r border-border'}`}
+                                        ? '-top-2.5 border-b-0 border-r-0' 
+                                        : '-bottom-2.5 border-t-0 border-l-0'}`}
                                 ></div>
                             </div>
 
