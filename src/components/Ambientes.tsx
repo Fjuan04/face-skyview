@@ -95,6 +95,8 @@ export default function Ambientes() {
                         ? { x: ambiente.x, y: ambiente.y }
                         : getCoordinates(index, ambientes.length);
 
+                    const isTopHalf = coords.y < 50;
+
                     return (
                         <div
                             key={ambiente.id}
@@ -108,8 +110,11 @@ export default function Ambientes() {
                         >
                             {/* Tooltip — z-20 para que quede por encima de otros puntos */}
                             <div
-                                className={`absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-3 w-[26rem] max-w-[90vw] bg-background/95 backdrop-blur-md border border-border p-5 rounded-2xl shadow-2xl transition-all duration-300 origin-bottom pointer-events-none
-                                    ${activeAmbientId === ambiente.id ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2'}`}
+                                className={`absolute z-20 left-1/2 -translate-x-1/2 w-[26rem] max-w-[90vw] bg-background/95 backdrop-blur-md border border-border p-5 rounded-2xl shadow-2xl transition-all duration-300 pointer-events-none
+                                    ${isTopHalf ? 'top-full mt-4 origin-top' : 'bottom-full mb-4 origin-bottom'}
+                                    ${activeAmbientId === ambiente.id 
+                                        ? 'opacity-100 scale-100 translate-y-0' 
+                                        : `opacity-0 scale-95 ${isTopHalf ? '-translate-y-2' : 'translate-y-2'}`}`}
                             >
                                 <div className="flex justify-between items-start mb-2 gap-2">
                                     <h3 className="font-plus font-bold text-foreground text-base leading-tight line-clamp-2">
@@ -194,8 +199,12 @@ export default function Ambientes() {
                                     </div>
                                 )}
 
-                                {/* Triángulo apuntando hacia abajo */}
-                                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-background border-b border-r border-border rotate-45"></div>
+                                {/* Triángulo apuntando hacia el punto */}
+                                <div className={`absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-background border rotate-45 
+                                    ${isTopHalf 
+                                        ? '-top-2.5 border-t border-l' 
+                                        : '-bottom-2.5 border-b border-r border-border'}`}
+                                ></div>
                             </div>
 
                             {/* Punto pulsante — z-10 base */}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import PermissionModal from "./PermissionModal";
-import { Search, X } from "lucide-react";
+import CreateAmbientModal from "./CreateAmbientModal";
+import { Search, X, Plus, Trash2 } from "lucide-react";
 
 export interface Ambiente {
   id: number;
@@ -24,34 +25,63 @@ export default function ListadoAmbientes() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [permissionAmbient, setPermissionAmbient] = useState<Ambiente | null>(null);
+  const [isAddingAmbient, setIsAddingAmbient] = useState(false);
 
-  useEffect(() => {
+  const fetchAmbientes = () => {
+    setIsLoading(true);
     api
       .get("/ambients")
       .then((data) => setAmbientes(data as Ambiente[]))
       .catch(console.error)
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAmbientes();
   }, []);
  
   const filteredAmbientes = ambientes.filter((amb) =>
     amb.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDelete = async (ambientId: number, name: string) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar el ambiente "${name}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
 
+    try {
+      await api.delete(`/ambients/${ambientId}`);
+      setAmbientes(prev => prev.filter(a => a.id !== ambientId));
+    } catch (error) {
+      console.error("Error deleting ambient:", error);
+      alert("No se pudo eliminar el ambiente.");
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
-          Gestión de ambientes
-        </p>
-        <h2
-          className="font-plus text-white font-bold"
-          style={{ fontSize: "clamp(28px, 3.5vw, 48px)", lineHeight: 1.1 }}
-        >
-          Ambientes
-        </h2>
+        <div className="flex justify-between items-start">
+          <div>
+            <p className="text-xs font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
+              Gestión de ambientes
+            </p>
+            <h2
+              className="font-plus text-white font-bold"
+              style={{ fontSize: "clamp(28px, 3.5vw, 48px)", lineHeight: 1.1 }}
+            >
+              Ambientes
+            </h2>
+          </div>
+          <button
+            onClick={() => setIsAddingAmbient(true)}
+            className="group flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2.5 rounded-lg font-plus font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+          >
+            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+            <span className="hidden sm:inline">Nuevo Ambiente</span>
+          </button>
+        </div>
 
         {/* Search Bar */}
         <div className="mt-6 relative group">
@@ -142,31 +172,38 @@ export default function ListadoAmbientes() {
             </div>
 
             {/* Status badge */}
-            <span
-              className={`
-                text-[11px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-[2px] shrink-0
-                ${isDisponible
-                  ? "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"
-                  : "text-orange-400 bg-orange-400/10 border border-orange-400/20"}
-              `}
-            >
-              {isDisponible ? "Disponible" : "Ocupado"}
-            </span>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPermissionAmbient(amb)}
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              <span
                 className={`
-                  shrink-0 h-9 px-4
-                  backdrop-blur-sm border border-white/20 rounded-[3px]
-                  text-white/80 hover:text-white text-xs font-plus uppercase tracking-wider
-                  transition-colors hover:bg-white/10
+                  text-[11px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-[2px]
+                  ${isDisponible
+                    ? "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"
+                    : "text-orange-400 bg-orange-400/10 border border-orange-400/20"}
                 `}
               >
-                Permisos
-              </button>
+                {isDisponible ? "Disponible" : "Ocupado"}
+              </span>
 
-
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPermissionAmbient(amb)}
+                  className={`
+                    h-8 px-3
+                    backdrop-blur-sm border border-white/20 rounded-[3px]
+                    text-white/80 hover:text-white text-[10px] font-plus uppercase tracking-wider
+                    transition-colors hover:bg-white/10
+                  `}
+                >
+                  Permisos
+                </button>
+                <button
+                  onClick={() => handleDelete(amb.id, amb.name)}
+                  className="h-8 w-8 flex items-center justify-center border border-red-500/20 rounded-[3px] text-red-500/60 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  title="Eliminar ambiente"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           </motion.li>
         )})}
@@ -178,13 +215,22 @@ export default function ListadoAmbientes() {
         )}
       </ul>
 
-      {permissionAmbient && (
-        <PermissionModal 
-          ambientId={permissionAmbient.id}
-          ambientName={permissionAmbient.name}
-          onClose={() => setPermissionAmbient(null)}
-        />
-      )}
+      <AnimatePresence>
+        {permissionAmbient && (
+          <PermissionModal 
+            ambientId={permissionAmbient.id}
+            ambientName={permissionAmbient.name}
+            onClose={() => setPermissionAmbient(null)}
+          />
+        )}
+
+        {isAddingAmbient && (
+          <CreateAmbientModal 
+            onClose={() => setIsAddingAmbient(false)}
+            onSuccess={fetchAmbientes}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
